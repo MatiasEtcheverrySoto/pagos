@@ -20,7 +20,7 @@
   --text2: #888880;
   --text3: #444440;
   --red: #e05c4b;
-  --green: #22c55e; /* Verde más brillante y vibrante */
+  --green: #22c55e;
 }
 
 body {
@@ -40,7 +40,7 @@ body {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 10px;
-  padding: 24px 20px 0; /* Mayor padding top al sacar la topbar */
+  padding: 24px 20px 0;
 }
 
 .date-field {
@@ -73,12 +73,6 @@ body {
   color-scheme: dark;
 }
 
-/* Modo solo lectura para la pantalla de carga */
-.date-input.readonly {
-  cursor: default;
-  line-height: 1.2;
-}
-
 .amount-block { padding: 20px 20px 0; }
 
 .amount-row {
@@ -89,7 +83,7 @@ body {
 
 .amount-left {
   display: flex;
-  align-items: center; /* Alineación vertical central exacta */
+  align-items: center;
   gap: 6px;
   flex: 1;
   min-width: 0;
@@ -97,12 +91,12 @@ body {
 
 .amount-sign {
   font-family: 'Geist Mono', monospace;
-  font-size: 32px; /* Ajustado para que el peso visual encaje con el número */
+  font-size: 32px;
   font-weight: 300;
   line-height: 1;
   flex-shrink: 0;
   transition: color 0.2s;
-  padding-bottom: 2px; /* Micro-ajuste óptico */
+  padding-bottom: 2px;
 }
 
 .amount-sign.neg { color: var(--red); }
@@ -124,11 +118,6 @@ body {
 }
 
 .amount-input::placeholder { color: var(--text3); }
-
-/* Para que el monto en la pantalla de carga se vea igual */
-.amount-input.readonly {
-  display: block;
-}
 
 .toggle-btn {
   flex-shrink: 0;
@@ -173,7 +162,7 @@ body {
   font-family: 'Geist', sans-serif;
   font-size: 14px;
   color: var(--text);
-  padding: 10px 14px 10px 38px; /* Padding extra para la lupa */
+  padding: 10px 14px 10px 38px;
   caret-color: var(--text2);
 }
 
@@ -247,15 +236,15 @@ body {
 .btn-confirm:disabled { opacity: 0.15; cursor: not-allowed; }
 
 /* =========================================
-   OVERLAY DE CARGA (ESPEJO DE UI)
+   OVERLAY DE CARGA (FOCUS MODE)
    ========================================= */
 .overlay {
   position: fixed;
   inset: 0;
-  background: var(--bg); /* Fondo igual a la app */
+  background: var(--bg);
   display: flex;
   flex-direction: column;
-  justify-content: flex-start;
+  padding: 40px 24px;
   opacity: 0;
   pointer-events: none;
   transition: opacity 0.2s;
@@ -264,20 +253,27 @@ body {
 
 .overlay.show { opacity: 1; pointer-events: all; }
 
-/* Contenedor centralizado para el progreso */
-.progress-section {
-  padding: 0 20px;
-  margin-top: 24px;
+/* Espaciadores flexibles para centrar el contenido */
+.spacer {
+  flex: 1;
+  min-height: 20px;
+}
+
+/* Contenedor de datos reflejados más grandes */
+.echo-container {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
 }
 
 .status-text {
-  font-size: 13px;
-  color: var(--text2);
-  margin-bottom: 12px;
+  font-size: 15px;
+  color: #ffffff; /* Blanco estático */
+  margin-bottom: 16px;
   font-weight: 500;
-  text-align: left;
-  height: 16px;
-  transition: color 0.3s;
+  text-align: center;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
 }
 
 /* Barra de Progreso Verde Brillante */
@@ -295,13 +291,12 @@ body {
   position: absolute;
   top: 0; left: 0; bottom: 0;
   width: 0%;
-  background: var(--green); /* Solo verde */
+  background: var(--green);
   border-radius: 5px;
   overflow: hidden;
   transition: width 0.2s linear;
 }
 
-/* Ilusión óptica 1: Rayas blancas en reversa */
 .progress-stripes {
   position: absolute;
   inset: 0;
@@ -316,7 +311,6 @@ body {
   animation: moveStripesReverse 0.8s linear infinite reverse;
 }
 
-/* Ilusión óptica 2: Brillo pulsante blanco */
 .progress-shimmer {
   position: absolute;
   top: 0; left: 0; bottom: 0; width: 60%;
@@ -383,35 +377,40 @@ body {
 </div>
 
 <div class="overlay" id="ov-loading">
-  <div class="dates-row">
-    <div class="date-field">
-      <span class="date-label">Fecha Caja</span>
-      <span class="date-input readonly" id="echo-caja"></span>
+  
+  <div class="spacer"></div> <div class="echo-container">
+    <div class="dates-row" style="padding: 0; gap: 16px;">
+      <div class="date-field" style="padding: 16px;">
+        <span class="date-label" style="font-size: 10px;">Fecha Caja</span>
+        <span class="date-input" id="echo-caja" style="font-size: 16px; cursor: default; line-height: 1.2;"></span>
+      </div>
+      <div class="date-field" style="padding: 16px;">
+        <span class="date-label" style="font-size: 10px;">Fecha Resultado</span>
+        <span class="date-input" id="echo-rdo" style="font-size: 16px; cursor: default; line-height: 1.2;"></span>
+      </div>
     </div>
-    <div class="date-field">
-      <span class="date-label">Fecha Resultado</span>
-      <span class="date-input readonly" id="echo-rdo"></span>
-    </div>
-  </div>
 
-  <div class="amount-block">
-    <div class="amount-row">
-      <div class="amount-left">
-        <span class="amount-sign" id="echo-sign"></span>
-        <span class="amount-input readonly" id="echo-monto"></span>
+    <div class="amount-block" style="padding: 0; margin-top: 36px;">
+      <span class="date-label" style="font-size: 11px; display: block; margin-bottom: 6px; color: var(--text2);">Monto</span>
+      <div class="amount-row">
+        <div class="amount-left">
+          <span class="amount-sign" id="echo-sign" style="font-size: 44px;"></span>
+          <span class="amount-input" id="echo-monto" style="font-size: 52px; display: block;"></span>
+        </div>
+      </div>
+    </div>
+
+    <div style="padding: 0; margin-top: 36px;">
+      <span class="date-label" style="font-size: 11px; display: block; margin-bottom: 8px; color: var(--text2);">Categoría</span>
+      <div class="cat-item selected" style="cursor: default; padding: 14px 18px; width: fit-content;">
+        <span class="cat-emoji" id="echo-emoji" style="font-size: 22px;"></span>
+        <span class="cat-name" id="echo-cat-name" style="font-size: 16px;"></span>
       </div>
     </div>
   </div>
 
-  <div style="padding: 20px 20px 0;">
-    <div class="cat-item selected" style="cursor: default;">
-      <span class="cat-emoji" id="echo-emoji"></span>
-      <span class="cat-name" id="echo-cat-name" style="font-size: 14px;"></span>
-    </div>
-  </div>
-
-  <div class="progress-section">
-    <div class="status-text" id="status-text">Cargando...</div>
+  <div class="spacer"></div> <div style="width: 100%;">
+    <div class="status-text">Cargando...</div>
     <div class="progress-wrapper">
       <div class="progress-bar" id="progress-bar">
         <div class="progress-stripes"></div>
@@ -431,7 +430,6 @@ body {
 <script>
 const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyIVeD1gCQba82X83v2bG1mJdCvLr3CLToXHxXZbhIiV6eYQCDR9llhdUZqbizGJSSG/exec";
 
-// Modificación de categorías según tu pedido
 const CATS_GASTO = [
   ["🍽️","Comida"],["🚗","Transporte"],["🔧","Auto"],["⛽","Combustible"],
   ["💪","GYM"],["👕","Ropa"],["🎁","Cumples y Regalos"],["🛒","Compra"],
@@ -546,7 +544,7 @@ document.getElementById("btn-confirm").addEventListener("click", async () => {
   const fechaCajaSheet = formatDateForSheet(rawFechaCaja);
   const fechaRdoSheet  = formatDateForSheet(rawFechaRdo);
 
-  // 1. Reflejar datos en la pantalla de carga (modo espejo)
+  // 1. Reflejar datos ampliados en la pantalla de carga
   document.getElementById("echo-caja").textContent = rawFechaCaja.split("-").reverse().join("/");
   document.getElementById("echo-rdo").textContent = rawFechaRdo.split("-").reverse().join("/");
   
@@ -563,11 +561,8 @@ document.getElementById("btn-confirm").addEventListener("click", async () => {
 
   // 2. Reiniciar UI de la barra
   const bar = document.getElementById("progress-bar");
-  const statusEl = document.getElementById("status-text");
-
   bar.style.transition = 'none';
   bar.style.width = '0%';
-  statusEl.textContent = "Iniciando...";
 
   showOverlay("ov-loading");
 
@@ -575,14 +570,12 @@ document.getElementById("btn-confirm").addEventListener("click", async () => {
   setTimeout(() => {
     bar.style.transition = 'width 0.8s cubic-bezier(0.2, 0.8, 0.2, 1)';
     bar.style.width = '45%';
-    statusEl.textContent = "Mandando fechas y monto...";
   }, 50);
 
   // 4. Segundo paso visual
   stepsTimeout = setTimeout(() => {
     bar.style.transition = 'width 1.2s cubic-bezier(0.1, 0.8, 0.4, 1)';
     bar.style.width = '75%';
-    statusEl.textContent = "Registrando categoría...";
   }, 800);
 
   // 5. Creep infinito
@@ -591,7 +584,6 @@ document.getElementById("btn-confirm").addEventListener("click", async () => {
     if(currentW < 96) {
       bar.style.transition = 'width 0.5s linear';
       bar.style.width = (currentW + 1) + '%';
-      statusEl.textContent = "Guardando en hoja...";
     }
   }, 1000);
 
@@ -616,11 +608,11 @@ document.getElementById("btn-confirm").addEventListener("click", async () => {
     clearTimeout(stepsTimeout);
     clearInterval(creepInterval);
 
-    // Barra al 100% y cierre instantáneo según tu requerimiento
+    // Barra al 100% y cierre instantáneo
     bar.style.transition = 'width 0.1s ease-out';
     bar.style.width = '100%';
 
-    setTimeout(() => window.close(), 150); // Le damos 150ms al ojo para ver el verde lleno antes de cerrar la pestaña
+    setTimeout(() => window.close(), 150);
 
   } catch {
     clearTimeout(stepsTimeout);
