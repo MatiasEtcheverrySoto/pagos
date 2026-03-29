@@ -2,306 +2,358 @@
 <html lang="es">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
-<title>Registrar pago</title>
-<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Pago</title>
+<link href="https://fonts.googleapis.com/css2?family=Geist+Mono:wght@300;400;500&family=Geist:wght@300;400;500&display=swap" rel="stylesheet">
 <style>
-  :root {
-    --bg: #0f0f0f;
-    --surface: #1a1a1a;
-    --surface2: #242424;
-    --border: #2e2e2e;
-    --text: #f0f0f0;
-    --text-muted: #666;
-    --text-dim: #999;
-    --accent: #00e5a0;
-    --accent-dim: rgba(0,229,160,0.12);
-    --danger: #ff4d4d;
-    --danger-dim: rgba(255,77,77,0.12);
-    --radius: 16px;
-    --radius-sm: 10px;
-  }
-  * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
-  body {
-    background: var(--bg);
-    color: var(--text);
-    font-family: 'DM Sans', sans-serif;
-    min-height: 100dvh;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    padding: 24px 20px;
-  }
-  body::before {
-    content: '';
-    position: fixed;
-    inset: 0;
-    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
-    pointer-events: none;
-    z-index: 0;
-  }
-  .card { width: 100%; max-width: 420px; position: relative; z-index: 1; animation: slideUp 0.3s ease; }
-  @keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+* { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
 
-  .app-badge {
-    display: inline-flex; align-items: center; gap: 6px;
-    background: var(--surface); border: 1px solid var(--border);
-    border-radius: 100px; padding: 4px 12px 4px 8px;
-    margin-bottom: 20px; font-size: 11px; font-weight: 500;
-    color: var(--text-dim); letter-spacing: 0.05em; text-transform: uppercase;
-  }
-  .app-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--accent); animation: pulse 2s infinite; }
-  @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.4} }
+:root {
+  --bg: #fafaf9;
+  --text: #1a1a18;
+  --text2: #888880;
+  --text3: #bbbbb0;
+  --border: #e8e8e4;
+  --red: #c0392b;
+  --green: #27ae60;
+}
 
-  .monto-section {
-    background: var(--surface); border: 1px solid var(--border);
-    border-radius: var(--radius); padding: 24px; margin-bottom: 12px;
-    position: relative; overflow: hidden;
-  }
-  .monto-section::after {
-    content: ''; position: absolute; top: 0; left: 0; right: 0; height: 1px;
-    background: linear-gradient(90deg, transparent, var(--accent), transparent); opacity: 0.4;
-  }
-  .field-label { font-size: 11px; font-weight: 500; color: var(--text-muted); letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 10px; }
-  .monto-input-wrap { display: flex; align-items: center; gap: 8px; }
-  .monto-prefix { font-family: 'DM Mono', monospace; font-size: 28px; font-weight: 500; color: var(--text-muted); flex-shrink: 0; transition: color 0.2s; }
-  .monto-negativo .monto-prefix { color: var(--danger); }
-  .monto-positivo .monto-prefix { color: var(--accent); }
-  #monto-input {
-    background: transparent; border: none; outline: none;
-    font-family: 'DM Mono', monospace; font-size: 36px; font-weight: 500;
-    color: var(--text); width: 100%; caret-color: var(--accent);
-  }
-  #monto-input::placeholder { color: var(--border); }
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'Geist', sans-serif;
+  min-height: 100dvh;
+  display: flex;
+  flex-direction: column;
+}
 
-  .signo-toggle { display: flex; gap: 6px; margin-top: 14px; }
-  .signo-btn {
-    flex: 1; padding: 8px; border-radius: 8px; border: 1px solid var(--border);
-    background: transparent; color: var(--text-muted);
-    font-family: 'DM Sans', sans-serif; font-size: 12px; font-weight: 500;
-    cursor: pointer; transition: all 0.15s;
-  }
-  .signo-btn.active-neg { background: var(--danger-dim); border-color: var(--danger); color: var(--danger); }
-  .signo-btn.active-pos { background: var(--accent-dim); border-color: var(--accent); color: var(--accent); }
+.topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 20px 24px 0;
+}
 
-  .desc-box {
-    background: var(--surface); border: 1px solid var(--border);
-    border-radius: var(--radius-sm); padding: 12px 16px; margin-bottom: 16px;
-    font-size: 12px; color: var(--text-muted); line-height: 1.5; word-break: break-word;
-  }
+.app-tag {
+  font-family: 'Geist Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 0.15em;
+  color: var(--text3);
+  text-transform: uppercase;
+}
 
-  .section-label { font-size: 11px; font-weight: 500; color: var(--text-muted); letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 10px; }
-  .categorias-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-bottom: 20px; }
-  .cat-btn {
-    padding: 10px 6px; border-radius: var(--radius-sm); border: 1px solid var(--border);
-    background: var(--surface); color: var(--text-dim);
-    font-family: 'DM Sans', sans-serif; font-size: 12px; cursor: pointer;
-    transition: all 0.15s; text-align: center; display: flex;
-    flex-direction: column; align-items: center; gap: 4px;
-  }
-  .cat-btn .cat-icon { font-size: 18px; }
-  .cat-btn:active { transform: scale(0.96); }
-  .cat-btn.selected { background: var(--accent-dim); border-color: var(--accent); color: var(--accent); }
+.cancel-btn {
+  font-size: 13px;
+  color: var(--text3);
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-family: 'Geist', sans-serif;
+  padding: 4px 0;
+}
 
-  .actions { display: flex; gap: 10px; }
-  .btn {
-    flex: 1; padding: 15px; border-radius: var(--radius-sm); border: none;
-    font-family: 'DM Sans', sans-serif; font-size: 14px; font-weight: 500;
-    cursor: pointer; transition: all 0.15s;
-  }
-  .btn:active { transform: scale(0.97); }
-  .btn-cancel { background: var(--surface); border: 1px solid var(--border); color: var(--text-muted); }
-  .btn-confirm { background: var(--accent); color: #000; font-weight: 600; }
+.amount-block { padding: 28px 24px 0; }
 
-  .estado { display: none; flex-direction: column; align-items: center; justify-content: center; text-align: center; min-height: 220px; gap: 16px; }
-  .estado.visible { display: flex; }
-  .estado-icon { font-size: 48px; }
-  .estado-titulo { font-size: 18px; font-weight: 600; }
-  .estado-sub { font-size: 13px; color: var(--text-muted); max-width: 260px; line-height: 1.5; }
-  .spinner { width: 40px; height: 40px; border: 3px solid var(--border); border-top-color: var(--accent); border-radius: 50%; animation: spin 0.7s linear infinite; }
-  @keyframes spin { to { transform: rotate(360deg); } }
+.amount-row {
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+}
 
-  #form-view { display: block; }
+.amount-sign {
+  font-family: 'Geist Mono', monospace;
+  font-size: 28px;
+  font-weight: 300;
+  line-height: 1;
+  padding-bottom: 3px;
+}
+
+.amount-sign.neg { color: var(--red); }
+.amount-sign.pos { color: var(--green); }
+
+.amount-input {
+  font-family: 'Geist Mono', monospace;
+  font-size: 44px;
+  font-weight: 300;
+  color: var(--text);
+  background: none;
+  border: none;
+  outline: none;
+  width: 100%;
+  caret-color: var(--text2);
+  letter-spacing: -1px;
+}
+
+.amount-input::placeholder { color: var(--text3); }
+
+.divider { height: 1px; background: var(--border); margin: 20px 24px 0; }
+
+.search-wrap { padding: 16px 24px 0; }
+
+.search-input {
+  width: 100%;
+  background: none;
+  border: none;
+  border-bottom: 1px solid var(--border);
+  outline: none;
+  font-family: 'Geist', sans-serif;
+  font-size: 14px;
+  color: var(--text);
+  padding: 0 0 10px;
+  caret-color: var(--text2);
+}
+
+.search-input::placeholder { color: var(--text3); }
+
+.categories-wrap {
+  flex: 1;
+  overflow-y: auto;
+  padding: 12px 24px 0;
+  -webkit-overflow-scrolling: touch;
+}
+
+.cat-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 0;
+  border-bottom: 1px solid var(--border);
+  cursor: pointer;
+  background: none;
+  border-left: none;
+  border-right: none;
+  border-top: none;
+  width: 100%;
+  text-align: left;
+  transition: opacity 0.1s;
+}
+
+.cat-item:first-child { border-top: 1px solid var(--border); }
+.cat-item:active { opacity: 0.4; }
+
+.cat-name {
+  font-size: 15px;
+  font-weight: 400;
+  color: var(--text2);
+  transition: color 0.15s;
+}
+
+.cat-check {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  border: 1.5px solid var(--border);
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.15s;
+}
+
+.cat-item.selected .cat-name { color: var(--text); font-weight: 500; }
+.cat-item.selected .cat-check { background: var(--text); border-color: var(--text); }
+.cat-item.selected .cat-check::after {
+  content: '';
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: white;
+}
+
+.cat-item.hidden { display: none; }
+
+.confirm-wrap {
+  padding: 16px 24px 36px;
+  background: var(--bg);
+  border-top: 1px solid var(--border);
+}
+
+.btn-confirm {
+  width: 100%;
+  background: var(--text);
+  color: white;
+  border: none;
+  border-radius: 10px;
+  padding: 16px;
+  font-family: 'Geist', sans-serif;
+  font-size: 15px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: opacity 0.15s;
+}
+
+.btn-confirm:active { opacity: 0.8; }
+.btn-confirm:disabled { opacity: 0.2; cursor: not-allowed; }
+
+.overlay {
+  position: fixed;
+  inset: 0;
+  background: var(--bg);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.2s;
+  z-index: 100;
+}
+
+.overlay.show { opacity: 1; pointer-events: all; }
+.overlay-icon { font-size: 36px; }
+.overlay-title { font-size: 18px; font-weight: 500; }
+.overlay-sub { font-size: 12px; color: var(--text2); font-family: 'Geist Mono', monospace; letter-spacing: 0.05em; }
+
+.spinner {
+  width: 24px; height: 24px;
+  border: 2px solid var(--border);
+  border-top-color: var(--text);
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
 </style>
 </head>
 <body>
-<div class="card">
 
-  <div id="form-view">
-    <div class="app-badge">
-      <div class="app-dot"></div>
-      <span id="app-name">Pago</span>
-    </div>
+<div class="topbar">
+  <span class="app-tag" id="app-tag">—</span>
+  <button class="cancel-btn" id="btn-cancel">Cancelar</button>
+</div>
 
-    <div class="monto-section" id="monto-section">
-      <div class="field-label">Monto</div>
-      <div class="monto-input-wrap">
-        <span class="monto-prefix" id="signo-display">−</span>
-        <input type="text" id="monto-input" inputmode="decimal" placeholder="0,00">
-      </div>
-      <div class="signo-toggle">
-        <button class="signo-btn active-neg" id="btn-negativo" onclick="setSigNo(-1)">− Egreso</button>
-        <button class="signo-btn" id="btn-positivo" onclick="setSigNo(1)">+ Ingreso</button>
-      </div>
-    </div>
-
-    <div class="desc-box" id="desc-box"></div>
-
-    <div class="section-label">Categoría</div>
-    <div class="categorias-grid" id="categorias-grid"></div>
-
-    <div class="actions">
-      <button class="btn btn-cancel" onclick="cancelar()">Cancelar</button>
-      <button class="btn btn-confirm" onclick="confirmar()">Confirmar</button>
-    </div>
+<div class="amount-block">
+  <div class="amount-row">
+    <span class="amount-sign" id="amount-sign">−</span>
+    <input class="amount-input" id="monto-input" type="text" inputmode="decimal" placeholder="0,00">
   </div>
+</div>
 
-  <div class="estado" id="loading-view">
-    <div class="spinner"></div>
-    <div class="estado-titulo">Guardando...</div>
-  </div>
+<div class="divider"></div>
 
-  <div class="estado" id="ok-view">
-    <div class="estado-icon">✅</div>
-    <div class="estado-titulo">¡Registrado!</div>
-    <div class="estado-sub" id="ok-msg">El pago fue guardado en el Sheet.</div>
-  </div>
+<div class="search-wrap">
+  <input class="search-input" id="search-input" type="text" placeholder="Buscar..." autocomplete="off" autocorrect="off" spellcheck="false">
+</div>
 
-  <div class="estado" id="error-view">
-    <div class="estado-icon">⚠️</div>
-    <div class="estado-titulo">Error al guardar</div>
-    <div class="estado-sub" id="error-msg">No se pudo conectar.</div>
-    <button class="btn btn-confirm" style="max-width:200px;margin-top:8px" onclick="mostrar('form-view')">Reintentar</button>
-  </div>
+<div class="categories-wrap" id="cat-list"></div>
 
+<div class="confirm-wrap">
+  <button class="btn-confirm" id="btn-confirm" disabled>Registrar</button>
+</div>
+
+<div class="overlay" id="ov-loading"><div class="spinner"></div></div>
+
+<div class="overlay" id="ov-ok">
+  <span class="overlay-icon">✓</span>
+  <span class="overlay-title">Registrado</span>
+  <span class="overlay-sub" id="ok-detail"></span>
+</div>
+
+<div class="overlay" id="ov-error">
+  <span class="overlay-icon">✕</span>
+  <span class="overlay-title">Error</span>
+  <span class="overlay-sub">No se pudo registrar</span>
+  <button class="cancel-btn" style="margin-top:16px;color:var(--text2)" onclick="hideAll()">Volver</button>
 </div>
 
 <script>
-  // ══════════════════════════════════════════
-  // REEMPLAZÁ ESTO CON TU URL DE APPS SCRIPT
-  const APPS_SCRIPT_URL = "REEMPLAZAR_CON_TU_URL";
-  // ══════════════════════════════════════════
+const APPS_SCRIPT_URL = "PEGA_AQUI_TU_URL_DEL_APPS_SCRIPT";
 
-  const CATEGORIAS = [
-    { id: "comida",          label: "Comida",      icon: "🍔" },
-    { id: "supermercado",    label: "Super",       icon: "🛒" },
-    { id: "transporte",      label: "Transporte",  icon: "🚗" },
-    { id: "salud",           label: "Salud",       icon: "💊" },
-    { id: "servicios",       label: "Servicios",   icon: "💡" },
-    { id: "entretenimiento", label: "Entrete.",    icon: "🎬" },
-    { id: "ropa",            label: "Ropa",        icon: "👕" },
-    { id: "ahorro",          label: "Ahorro",      icon: "💰" },
-    { id: "otro",            label: "Otro",        icon: "📌" },
-  ];
+const CATS_NEG = [
+  "Comida","Transporte","Auto","Combustible","GYM","Ropa",
+  "Cumples y Regalos","Compra","Dentista","Suscripción",
+  "Salud y aseo","Evento","Facultad","Educación","Estacionamiento",
+  "Datos","Peluquería","Propinas","Apuesta y Juego","Seguro",
+  "Impuestos","Desconocido","Otros"
+];
 
-  let signo = -1;
-  let categoriaSeleccionada = null;
-  let params = {};
+const CATS_POS = [
+  "Sueldo Lucom","Comisión Lucom","Clases","Venta","Aguinaldo Lucom",
+  "Rendimientos","Cumples y Regalos","Apuesta y Juego","Desconocido","Otros"
+];
 
-  function init() {
-    const p = new URLSearchParams(window.location.search);
-    params = { texto: p.get("texto") || "", app: p.get("app") || "" };
+const p        = new URLSearchParams(window.location.search);
+const montoParam = p.get("monto") || "";
+const appParam   = (p.get("app") || "").toLowerCase();
+const textoParam = p.get("texto") || "";
+const signoParam = p.get("signo") || "negativo";
+const isPos      = signoParam === "positivo";
 
-    const appNames = { carrefour: "Carrefour Banco", uala: "Ualá" };
-    document.getElementById("app-name").textContent = appNames[params.app] || params.app || "Pago";
+document.getElementById("app-tag").textContent = appParam || "pago";
+document.getElementById("monto-input").value = montoParam;
 
-    const descBox = document.getElementById("desc-box");
-    if (params.texto) {
-      descBox.textContent = params.texto;
+const signEl = document.getElementById("amount-sign");
+signEl.textContent = isPos ? "+" : "−";
+signEl.className   = "amount-sign " + (isPos ? "pos" : "neg");
+
+// Build list
+const cats    = isPos ? CATS_POS : CATS_NEG;
+const catList = document.getElementById("cat-list");
+let selected  = null;
+
+cats.forEach(name => {
+  const btn = document.createElement("button");
+  btn.className    = "cat-item";
+  btn.dataset.name = name.toLowerCase();
+  btn.innerHTML    = `<span class="cat-name">${name}</span><span class="cat-check"></span>`;
+  btn.addEventListener("click", () => {
+    document.querySelectorAll(".cat-item").forEach(b => b.classList.remove("selected"));
+    btn.classList.add("selected");
+    selected = name;
+    document.getElementById("btn-confirm").disabled = false;
+    btn.scrollIntoView({ behavior: "smooth", block: "nearest" });
+  });
+  catList.appendChild(btn);
+});
+
+// Search
+document.getElementById("search-input").addEventListener("input", e => {
+  const q = e.target.value.toLowerCase().trim();
+  document.querySelectorAll(".cat-item").forEach(btn => {
+    btn.classList.toggle("hidden", q.length > 0 && !btn.dataset.name.includes(q));
+  });
+});
+
+// Confirm
+document.getElementById("btn-confirm").addEventListener("click", async () => {
+  if (!selected) return;
+  const monto = document.getElementById("monto-input").value.trim();
+  if (!monto) return;
+
+  const montoFinal = isPos ? monto : "-" + monto;
+  showOverlay("ov-loading");
+
+  try {
+    const res  = await fetch(APPS_SCRIPT_URL, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        monto: montoFinal,
+        descripcion: textoParam,
+        app: appParam,
+        categoria: selected,
+        yaConSigno: true
+      })
+    });
+    const json = await res.json();
+    hideAll();
+    if (json.status === "ok" || json.status === "ignorado") {
+      document.getElementById("ok-detail").textContent = `${montoFinal} · ${selected}`;
+      showOverlay("ov-ok");
+      setTimeout(() => window.close(), 2000);
     } else {
-      descBox.style.display = "none";
+      showOverlay("ov-error");
     }
-
-    // Extraer monto de la notificación
-    const match = params.texto.match(/\$\s*([\d.,]+)/);
-    if (match) document.getElementById("monto-input").value = match[1];
-
-    // Signo inicial según tipo de notificación
-    const esIngreso = params.texto.toLowerCase().includes("recibiste");
-    setSigNo(esIngreso ? 1 : -1);
-
-    // Renderizar categorías
-    const grid = document.getElementById("categorias-grid");
-    CATEGORIAS.forEach(cat => {
-      const btn = document.createElement("button");
-      btn.className = "cat-btn";
-      btn.innerHTML = `<span class="cat-icon">${cat.icon}</span>${cat.label}`;
-      btn.onclick = () => {
-        categoriaSeleccionada = cat.id;
-        document.querySelectorAll(".cat-btn").forEach(b => b.classList.remove("selected"));
-        btn.classList.add("selected");
-      };
-      grid.appendChild(btn);
-    });
+  } catch {
+    hideAll();
+    showOverlay("ov-error");
   }
+});
 
-  function setSigNo(s) {
-    signo = s;
-    const section = document.getElementById("monto-section");
-    section.classList.toggle("monto-negativo", s === -1);
-    section.classList.toggle("monto-positivo", s === 1);
-    document.getElementById("signo-display").textContent = s === -1 ? "−" : "+";
-    document.getElementById("btn-negativo").className = "signo-btn" + (s === -1 ? " active-neg" : "");
-    document.getElementById("btn-positivo").className = "signo-btn" + (s === 1  ? " active-pos" : "");
-  }
+document.getElementById("btn-cancel").addEventListener("click", () => window.close());
 
-  function mostrar(view) {
-    ["form-view","loading-view","ok-view","error-view"].forEach(id => {
-      const el = document.getElementById(id);
-      el.style.display = "none";
-      el.classList.remove("visible");
-    });
-    const target = document.getElementById(view);
-    target.style.display = view === "form-view" ? "block" : "flex";
-    if (view !== "form-view") target.classList.add("visible");
-  }
-
-  function cancelar() {
-    window.close();
-    setTimeout(() => {
-      document.body.innerHTML = `<div style="display:flex;align-items:center;justify-content:center;height:100dvh;font-family:sans-serif;color:#666;font-size:14px;background:#0f0f0f">Podés cerrar esta ventana.</div>`;
-    }, 200);
-  }
-
-  async function confirmar() {
-    const montoRaw = document.getElementById("monto-input").value.trim();
-    if (!montoRaw) { document.getElementById("monto-input").focus(); return; }
-
-    const montoFinal = (signo === -1 ? "-" : "") + montoRaw;
-    const categoria = categoriaSeleccionada || "A confirmar";
-
-    mostrar("loading-view");
-
-    try {
-      const res = await fetch(APPS_SCRIPT_URL, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          monto: montoFinal,
-          descripcion: params.texto,
-          app: params.app,
-          categoria: categoria,
-          desde_web: true
-        })
-      });
-
-      const json = await res.json();
-      if (json.status === "ok" || json.status === "ignorado") {
-        const catLabel = CATEGORIAS.find(c => c.id === categoriaSeleccionada)?.label || "A confirmar";
-        document.getElementById("ok-msg").textContent = `Guardado como "${catLabel}"`;
-        mostrar("ok-view");
-        setTimeout(() => window.close(), 2500);
-      } else {
-        throw new Error(json.msg || "Error del servidor");
-      }
-    } catch(err) {
-      document.getElementById("error-msg").textContent = err.message;
-      mostrar("error-view");
-    }
-  }
-
-  init();
+function showOverlay(id) { hideAll(); document.getElementById(id).classList.add("show"); }
+function hideAll() { document.querySelectorAll(".overlay").forEach(o => o.classList.remove("show")); }
 </script>
 </body>
 </html>
