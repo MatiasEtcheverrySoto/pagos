@@ -6,9 +6,7 @@
 <title>Pago</title>
 <link href="https://fonts.googleapis.com/css2?family=Geist+Mono:wght@300;400;500;600&family=Geist:wght@300;400;500;600&display=swap" rel="stylesheet">
 <style>
-/* =========================================
-   VARIABLES & RESET
-   ========================================= */
+/* Estilos generales y variables de color existentes */
 * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
 
 :root {
@@ -20,7 +18,7 @@
   --text2: #888880;
   --text3: #444440;
   --red: #e05c4b;
-  --green: #22c55e;
+  --green: #4caf82;
 }
 
 body {
@@ -33,14 +31,37 @@ body {
   overflow-x: hidden;
 }
 
-/* =========================================
-   UI PRINCIPAL
-   ========================================= */
+/* Estilos de la app principal (se mantienen) */
+.topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 18px 20px 0;
+}
+
+.app-tag {
+  font-family: 'Geist Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 0.15em;
+  color: var(--text3);
+  text-transform: uppercase;
+}
+
+.cancel-btn {
+  font-size: 13px;
+  color: var(--text2);
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-family: 'Geist', sans-serif;
+  padding: 4px 0;
+}
+
 .dates-row {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 10px;
-  padding: 24px 20px 0;
+  padding: 16px 20px 0;
 }
 
 .date-field {
@@ -83,20 +104,19 @@ body {
 
 .amount-left {
   display: flex;
-  align-items: center;
-  gap: 6px;
+  align-items: baseline;
+  gap: 4px;
   flex: 1;
   min-width: 0;
 }
 
 .amount-sign {
   font-family: 'Geist Mono', monospace;
-  font-size: 32px;
+  font-size: 26px;
   font-weight: 300;
   line-height: 1;
   flex-shrink: 0;
   transition: color 0.2s;
-  padding-bottom: 2px;
 }
 
 .amount-sign.neg { color: var(--red); }
@@ -106,7 +126,6 @@ body {
   font-family: 'Geist Mono', monospace;
   font-size: 40px;
   font-weight: 300;
-  line-height: 1;
   color: var(--text);
   background: none;
   border: none;
@@ -135,23 +154,11 @@ body {
 }
 
 .toggle-btn.gasto  { color: var(--red);   border-color: rgba(224,92,75,0.3);   background: rgba(224,92,75,0.08); }
-.toggle-btn.ingreso{ color: var(--green); border-color: rgba(34,197,94,0.3); background: rgba(34,197,94,0.08); }
+.toggle-btn.ingreso{ color: var(--green); border-color: rgba(76,175,130,0.3); background: rgba(76,175,130,0.08); }
 
 .divider { height: 1px; background: var(--border); margin: 18px 20px 0; }
 
-.search-wrap { 
-  padding: 14px 20px 0; 
-  position: relative;
-}
-
-.search-icon {
-  position: absolute;
-  left: 32px;
-  top: 25px;
-  width: 16px;
-  height: 16px;
-  stroke: var(--text3);
-}
+.search-wrap { padding: 14px 20px 0; }
 
 .search-input {
   width: 100%;
@@ -162,7 +169,7 @@ body {
   font-family: 'Geist', sans-serif;
   font-size: 14px;
   color: var(--text);
-  padding: 10px 14px 10px 38px;
+  padding: 10px 14px;
   caret-color: var(--text2);
 }
 
@@ -235,16 +242,16 @@ body {
 .btn-confirm:active { opacity: 0.85; }
 .btn-confirm:disabled { opacity: 0.15; cursor: not-allowed; }
 
-/* =========================================
-   OVERLAY DE CARGA (FOCUS MODE)
-   ========================================= */
+/* Estilos de Overlays existentes (reemplazados para #ov-loading) */
 .overlay {
   position: fixed;
   inset: 0;
   background: var(--bg);
   display: flex;
   flex-direction: column;
-  padding: 40px 24px;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
   opacity: 0;
   pointer-events: none;
   transition: opacity 0.2s;
@@ -252,99 +259,176 @@ body {
 }
 
 .overlay.show { opacity: 1; pointer-events: all; }
+.overlay-icon { font-size: 36px; }
+.overlay-title { font-size: 18px; font-weight: 500; color: var(--text); }
+.overlay-sub { font-size: 12px; color: var(--text2); font-family: 'Geist Mono', monospace; }
 
-/* Espaciadores flexibles para centrar el contenido */
-.spacer {
-  flex: 1;
-  min-height: 20px;
+/* NUEVOS ESTILOS PARA LA PANTALLA DE CARGA (#ov-loading) */
+#ov-loading {
+  background: var(--bg);
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-around; /* Distribuir secciones verticalmente */
+  padding: 40px 20px;
 }
 
-/* Contenedor de datos reflejados más grandes */
-.echo-container {
+/* Fila de Fechas reflejadas */
+.echo-dates-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+  width: 100%;
+  margin-bottom: 30px;
+}
+
+.echo-date-field {
   display: flex;
   flex-direction: column;
+  align-items: center;
+}
+
+/* Etiquetas de fecha (en los círculos celestes de la imagen) */
+.echo-date-label {
+  font-family: 'Geist Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 0.15em;
+  color: var(--text3);
+  text-transform: uppercase;
+  margin-bottom: 10px;
+}
+
+/* Rectángulo oscuro de valor de fecha */
+.echo-date-value-container {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 15px 20px;
+  text-align: center;
   width: 100%;
 }
 
-.status-text {
-  font-size: 15px;
-  color: #ffffff; /* Blanco estático */
-  margin-bottom: 16px;
-  font-weight: 500;
-  text-align: center;
-  letter-spacing: 0.05em;
+/* Fecha real (centrada y más grande) */
+.echo-date-value {
+  font-family: 'Geist Mono', monospace;
+  font-size: 16px;
+  color: var(--text);
+}
+
+/* Contenedores de Monto y Categoría reflejados */
+.echo-section-container {
+  width: 100%;
+  margin-bottom: 25px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+/* Etiquetas de sección (Monto, Categoría - Más grandes) */
+.echo-section-label {
+  font-family: 'Geist', sans-serif;
+  font-size: 11px; /* Aumentado */
+  color: var(--text2);
+  margin-bottom: 8px;
+  text-transform: capitalize;
+}
+
+/* Estilos de valor de Monto y Categoría (Más grandes) */
+.echo-amount-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.echo-amount-sign {
+  font-family: 'Geist Mono', monospace;
+  font-size: 32px; /* Se mantiene grande */
+  font-weight: 300;
+  color: var(--red); /* Por defecto neg, JS lo cambia */
+}
+
+.echo-amount-input {
+  font-family: 'Geist Mono', monospace;
+  font-size: 40px; /* Se mantiene grande */
+  font-weight: 300;
+  color: var(--text);
+  letter-spacing: -1px;
+}
+
+.echo-cat-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 15px;
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  width: auto;
+}
+
+.echo-cat-emoji { font-size: 20px; } /* Aumentado */
+.echo-cat-name {
+  font-size: 16px; /* Aumentado */
+  color: var(--text);
+}
+
+/* Controles de Carga */
+.loading-status {
+  font-family: 'Geist Mono', monospace;
+  font-size: 12px;
+  color: var(--text2);
+  margin-top: 30px;
   text-transform: uppercase;
 }
 
-/* Barra de Progreso Verde Brillante */
-.progress-wrapper {
-  position: relative;
-  width: 100%;
-  height: 12px;
+/* Barra de progreso de la imagen de referencia */
+.progress-container {
+  width: 80%;
+  height: 10px;
   background: var(--surface2);
-  border: 1px solid var(--border);
   border-radius: 6px;
   overflow: hidden;
+  margin-top: 10px;
 }
 
-.progress-bar {
-  position: absolute;
-  top: 0; left: 0; bottom: 0;
-  width: 0%;
-  background: var(--green);
-  border-radius: 5px;
-  overflow: hidden;
-  transition: width 0.2s linear;
-}
-
-.progress-stripes {
-  position: absolute;
-  inset: 0;
+.progress-ribbing {
+  height: 100%;
+  width: 50%; /* JS actualiza esto, o es una animación de "espera" */
+  background-color: var(--green);
   background-image: repeating-linear-gradient(
-    45deg,
-    rgba(255, 255, 255, 0.25) 0,
-    rgba(255, 255, 255, 0.25) 12px,
-    transparent 12px,
-    transparent 24px
+    -45deg,
+    rgba(0, 0, 0, 0.1) 25%,
+    transparent 25%,
+    transparent 50%,
+    rgba(0, 0, 0, 0.1) 50%,
+    rgba(0, 0, 0, 0.1) 75%,
+    transparent 75%,
+    transparent
   );
-  background-size: 34px 34px;
-  animation: moveStripesReverse 0.8s linear infinite reverse;
+  background-size: 20px 20px;
+  animation: moveRibbing 1s linear infinite;
 }
 
-.progress-shimmer {
-  position: absolute;
-  top: 0; left: 0; bottom: 0; width: 60%;
-  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.6), transparent);
-  transform: skewX(-20deg) translateX(-150%);
-  animation: shimmer 1.8s infinite;
-}
-
-@keyframes moveStripesReverse {
+@keyframes moveRibbing {
   0% { background-position: 0 0; }
-  100% { background-position: 34px 0; }
+  100% { background-position: 20px 0; }
 }
-
-@keyframes shimmer {
-  100% { transform: skewX(-20deg) translateX(250%); }
-}
-
-/* Pantalla Error Simple */
-#ov-error { align-items: center; justify-content: center; gap: 12px; }
-.error-icon { font-size: 36px; }
-.error-title { font-size: 18px; font-weight: 500; }
-.cancel-btn { font-size: 13px; color: var(--text2); background: none; border: none; cursor: pointer; padding: 4px 0; }
 </style>
 </head>
 <body>
 
+<div class="topbar">
+  <span class="app-tag" id="app-tag">—</span>
+  <button class="cancel-btn" id="btn-cancel">Cancelar</button>
+</div>
+
 <div class="dates-row">
-  <div class="date-field">
-    <span class="date-label">Fecha Caja</span>
-    <input class="date-input" type="date" id="fecha-caja">
-  </div>
   <div class="date-field">
     <span class="date-label">Fecha Resultado</span>
     <input class="date-input" type="date" id="fecha-resultado">
+  </div>
+  <div class="date-field">
+    <span class="date-label">Fecha Caja</span>
+    <input class="date-input" type="date" id="fecha-caja">
   </div>
 </div>
 
@@ -361,10 +445,6 @@ body {
 <div class="divider"></div>
 
 <div class="search-wrap">
-  <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-    <circle cx="11" cy="11" r="8"></circle>
-    <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
-  </svg>
   <input class="search-input" id="search-input" type="text" placeholder="Buscar categoría..." autocomplete="off" autocorrect="off" spellcheck="false">
 </div>
 
@@ -377,66 +457,66 @@ body {
 </div>
 
 <div class="overlay" id="ov-loading">
-  
-  <div class="spacer"></div> <div class="echo-container">
-    <div class="dates-row" style="padding: 0; gap: 16px;">
-      <div class="date-field" style="padding: 16px;">
-        <span class="date-label" style="font-size: 10px;">Fecha Caja</span>
-        <span class="date-input" id="echo-caja" style="font-size: 16px; cursor: default; line-height: 1.2;"></span>
-      </div>
-      <div class="date-field" style="padding: 16px;">
-        <span class="date-label" style="font-size: 10px;">Fecha Resultado</span>
-        <span class="date-input" id="echo-rdo" style="font-size: 16px; cursor: default; line-height: 1.2;"></span>
+  <div class="echo-dates-row">
+    <div class="echo-date-field">
+      <span class="echo-date-label">FECHA CAJA</span>
+      <div class="echo-date-value-container">
+        <span id="echo-date-caja-val" class="echo-date-value">--/--/----</span>
       </div>
     </div>
-
-    <div class="amount-block" style="padding: 0; margin-top: 36px;">
-      <span class="date-label" style="font-size: 11px; display: block; margin-bottom: 6px; color: var(--text2);">Monto</span>
-      <div class="amount-row">
-        <div class="amount-left">
-          <span class="amount-sign" id="echo-sign" style="font-size: 44px;"></span>
-          <span class="amount-input" id="echo-monto" style="font-size: 52px; display: block;"></span>
-        </div>
-      </div>
-    </div>
-
-    <div style="padding: 0; margin-top: 36px;">
-      <span class="date-label" style="font-size: 11px; display: block; margin-bottom: 8px; color: var(--text2);">Categoría</span>
-      <div class="cat-item selected" style="cursor: default; padding: 14px 18px; width: fit-content;">
-        <span class="cat-emoji" id="echo-emoji" style="font-size: 22px;"></span>
-        <span class="cat-name" id="echo-cat-name" style="font-size: 16px;"></span>
+    <div class="echo-date-field">
+      <span class="echo-date-label">FECHA RESULTADO</span>
+      <div class="echo-date-value-container">
+        <span id="echo-date-rdo-val" class="echo-date-value">--/--/----</span>
       </div>
     </div>
   </div>
 
-  <div class="spacer"></div> <div style="width: 100%;">
-    <div class="status-text">Cargando...</div>
-    <div class="progress-wrapper">
-      <div class="progress-bar" id="progress-bar">
-        <div class="progress-stripes"></div>
-        <div class="progress-shimmer"></div>
-      </div>
+  <div class="echo-section-container">
+    <span class="echo-section-label">Monto</span>
+    <div class="echo-amount-row">
+      <span id="echo-amount-sign" class="echo-amount-sign neg">−</span>
+      <span id="echo-amount-val" class="echo-amount-input">0,00</span>
     </div>
+  </div>
+
+  <div class="echo-section-container">
+    <span class="echo-section-label">Categoría</span>
+    <div class="echo-cat-item">
+      <span id="echo-cat-emoji" class="echo-cat-emoji">❓</span>
+      <span id="echo-cat-name" class="echo-cat-name">Seleccione una categoría</span>
+    </div>
+  </div>
+
+  <div class="loading-status">CARGANDO...</div>
+  <div class="progress-container">
+    <div class="progress-ribbing" id="progress-bar"></div>
   </div>
 </div>
 
+<div class="overlay" id="ov-ok">
+  <span class="overlay-icon">✓</span>
+  <span class="overlay-title">Registrado</span>
+  <span class="overlay-sub" id="ok-detail"></span>
+</div>
+
 <div class="overlay" id="ov-error">
-  <span class="error-icon">✕</span>
-  <span class="error-title">Error</span>
-  <span style="font-family:'Geist Mono', monospace; font-size:12px; color:var(--text2);">No se pudo registrar</span>
+  <span class="overlay-icon">✕</span>
+  <span class="overlay-title">Error</span>
+  <span class="overlay-sub">No se pudo registrar</span>
   <button class="cancel-btn" style="margin-top:16px" onclick="hideAll()">Volver</button>
 </div>
 
 <script>
 const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyIVeD1gCQba82X83v2bG1mJdCvLr3CLToXHxXZbhIiV6eYQCDR9llhdUZqbizGJSSG/exec";
 
+// Categorías (revisadas para incluir "A confirmar" y "Otros")
 const CATS_GASTO = [
   ["🍽️","Comida"],["🚗","Transporte"],["🔧","Auto"],["⛽","Combustible"],
   ["💪","GYM"],["👕","Ropa"],["🎁","Cumples y Regalos"],["🛒","Compra"],
   ["🦷","Dentista"],["📱","Suscripción"],["🧴","Salud y aseo"],["🎉","Evento"],
   ["🎓","Facultad"],["📚","Educación"],["🅿️","Estacionamiento"],["📡","Datos"],
-  ["✂️","Peluquería"],["💸","Propinas"],["🎲","Apuesta y Juego"],["🛡️","Seguro"],
-  ["⏳","A confirmar"],["📦","Otros"]
+  ["✂️","Peluquería"],["💸","Propinas"],["⏳","A confirmar"],["📦","Otros"]
 ];
 
 const CATS_INGRESO = [
@@ -451,12 +531,14 @@ const textoParam = decodeURIComponent(p.get("texto") || "");
 const appParam   = (p.get("app") || "").toLowerCase();
 const signoParam = p.get("signo") || "negativo";
 
+// Extraer monto del texto de la notificación
 function extraerMonto(texto) {
   const match = texto.match(/\$\s*([\d.,]+)/);
   if (!match) return "";
   return match[1];
 }
 
+// Fecha de hoy en formato YYYY-MM-DD
 function todayStr() {
   return new Date().toISOString().split("T")[0];
 }
@@ -471,6 +553,7 @@ let isGasto = signoParam !== "positivo";
 let selected = null;
 
 // Init UI
+document.getElementById("app-tag").textContent = appParam || "pago";
 document.getElementById("monto-input").value = extraerMonto(textoParam);
 document.getElementById("fecha-resultado").value = todayStr();
 document.getElementById("fecha-caja").value = todayStr();
@@ -521,6 +604,7 @@ function buildCats() {
 buildCats();
 updateToggle();
 
+// Search
 document.getElementById("search-input").addEventListener("input", e => {
   const q = e.target.value.toLowerCase().trim();
   document.querySelectorAll(".cat-item").forEach(btn => {
@@ -528,70 +612,40 @@ document.getElementById("search-input").addEventListener("input", e => {
   });
 });
 
-// LOGICA DE CONFIRMACIÓN Y ANIMACIONES
-let stepsTimeout, creepInterval;
-
+// Confirm
 document.getElementById("btn-confirm").addEventListener("click", async () => {
   if (!selected) return;
-  const monto = document.getElementById("monto-input").value.trim();
-  if (!monto) return;
+  const montoInput = document.getElementById("monto-input").value.trim();
+  if (!montoInput) return;
 
-  const montoFinal = isGasto ? "-" + monto : monto;
+  const montoFinal = isGasto ? "-" + montoInput : montoInput;
+  const fechaResultadoInput = document.getElementById("fecha-resultado").value;
+  const fechaCajaInput      = document.getElementById("fecha-caja").value;
+
+  // Llenar campos de eco de la pantalla de carga
+  document.getElementById("echo-date-caja-val").textContent = fechaCajaInput.split("-").reverse().join("/"); // Formato DD/MM/YYYY
+  document.getElementById("echo-date-rdo-val").textContent = fechaResultadoInput.split("-").reverse().join("/");
+
+  const signEl = document.getElementById("amount-sign");
+  const echoSignEl = document.getElementById("echo-amount-sign");
+  echoSignEl.textContent = signEl.textContent;
+  echoSignEl.className = signEl.className; // Copiar clases neg/pos
   
-  const rawFechaCaja = document.getElementById("fecha-caja").value;
-  const rawFechaRdo  = document.getElementById("fecha-resultado").value;
+  document.getElementById("echo-amount-val").textContent = montoInput;
 
-  const fechaCajaSheet = formatDateForSheet(rawFechaCaja);
-  const fechaRdoSheet  = formatDateForSheet(rawFechaRdo);
-
-  // 1. Reflejar datos ampliados en la pantalla de carga
-  document.getElementById("echo-caja").textContent = rawFechaCaja.split("-").reverse().join("/");
-  document.getElementById("echo-rdo").textContent = rawFechaRdo.split("-").reverse().join("/");
-  
-  const echoSign = document.getElementById("echo-sign");
-  echoSign.textContent = isGasto ? "−" : "+";
-  echoSign.className = isGasto ? "amount-sign neg" : "amount-sign pos";
-  
-  document.getElementById("echo-monto").textContent = monto;
-
-  const cats = isGasto ? CATS_GASTO : CATS_INGRESO;
-  const catObj = cats.find(c => c[1] === selected);
-  document.getElementById("echo-emoji").textContent = catObj ? catObj[0] : '';
+  const currentCats = isGasto ? CATS_GASTO : CATS_INGRESO;
+  const catObj = currentCats.find(c => c[1] === selected);
+  document.getElementById("echo-cat-emoji").textContent = catObj ? catObj[0] : '❓';
   document.getElementById("echo-cat-name").textContent = selected;
 
-  // 2. Reiniciar UI de la barra
-  const bar = document.getElementById("progress-bar");
-  bar.style.transition = 'none';
-  bar.style.width = '0%';
-
   showOverlay("ov-loading");
-
-  // 3. Inicio Rápido (0 a 50%)
-  setTimeout(() => {
-    bar.style.transition = 'width 0.8s cubic-bezier(0.2, 0.8, 0.2, 1)';
-    bar.style.width = '45%';
-  }, 50);
-
-  // 4. Segundo paso visual
-  stepsTimeout = setTimeout(() => {
-    bar.style.transition = 'width 1.2s cubic-bezier(0.1, 0.8, 0.4, 1)';
-    bar.style.width = '75%';
-  }, 800);
-
-  // 5. Creep infinito
-  creepInterval = setInterval(() => {
-    let currentW = parseFloat(bar.style.width);
-    if(currentW < 96) {
-      bar.style.transition = 'width 0.5s linear';
-      bar.style.width = (currentW + 1) + '%';
-    }
-  }, 1000);
-
+  
   try {
-    // LLAMADA AL SERVIDOR
+    // LLAMADA AL SERVIDOR BLINDADA (Keepalive para segundo plano)
     await fetch(APPS_SCRIPT_URL, {
       method: "POST",
       mode: "no-cors",
+      keepalive: true,
       headers: { "Content-Type": "text/plain" },
       body: JSON.stringify({
         monto: montoFinal,
@@ -599,28 +653,20 @@ document.getElementById("btn-confirm").addEventListener("click", async () => {
         app: appParam,
         categoria: selected,
         yaConSigno: true,
-        fechaResultado: fechaRdoSheet,
-        fechaCaja: fechaCajaSheet
+        fechaResultado: formatDateForSheet(fechaResultadoInput),
+        fechaCaja: formatDateForSheet(fechaCajaInput)
       })
     });
     
-    // 6. Cierre Automático (Éxito)
-    clearTimeout(stepsTimeout);
-    clearInterval(creepInterval);
-
-    // Barra al 100% y cierre instantáneo
-    bar.style.transition = 'width 0.1s ease-out';
-    bar.style.width = '100%';
-
+    // Cierre Automático (Mínimo tiempo visual)
     setTimeout(() => window.close(), 150);
-
   } catch {
-    clearTimeout(stepsTimeout);
-    clearInterval(creepInterval);
     hideAll();
     showOverlay("ov-error");
   }
 });
+
+document.getElementById("btn-cancel").addEventListener("click", () => window.close());
 
 function showOverlay(id) { hideAll(); document.getElementById(id).classList.add("show"); }
 function hideAll() { document.querySelectorAll(".overlay").forEach(o => o.classList.remove("show")); }
