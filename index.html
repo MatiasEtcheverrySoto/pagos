@@ -1,3 +1,417 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Pago</title>
+<link href="https://fonts.googleapis.com/css2?family=Geist+Mono:wght@300;400;500&family=Geist:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+/* =========================================
+   VARIABLES & RESET
+   ========================================= */
+* { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+
+:root {
+  --bg: #111110;
+  --surface: #1c1c1a;
+  --surface2: #252523;
+  --border: #2e2e2b;
+  --text: #f0f0ee;
+  --text2: #888880;
+  --text3: #444440;
+  --red: #e05c4b;
+  --green: #4caf82;
+}
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'Geist', sans-serif;
+  min-height: 100dvh;
+  display: flex;
+  flex-direction: column;
+  overflow-x: hidden;
+}
+
+/* =========================================
+   UI PRINCIPAL
+   ========================================= */
+.topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 18px 20px 0;
+}
+
+.app-tag {
+  font-family: 'Geist Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 0.15em;
+  color: var(--text3);
+  text-transform: uppercase;
+}
+
+.cancel-btn {
+  font-size: 13px;
+  color: var(--text2);
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-family: 'Geist', sans-serif;
+  padding: 4px 0;
+}
+
+.dates-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  padding: 16px 20px 0;
+}
+
+.date-field {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 10px 12px;
+}
+
+.date-label {
+  font-family: 'Geist Mono', monospace;
+  font-size: 9px;
+  letter-spacing: 0.15em;
+  color: var(--text3);
+  text-transform: uppercase;
+}
+
+.date-input {
+  background: none;
+  border: none;
+  outline: none;
+  font-family: 'Geist Mono', monospace;
+  font-size: 13px;
+  color: var(--text);
+  width: 100%;
+  cursor: pointer;
+  color-scheme: dark;
+}
+
+.amount-block { padding: 20px 20px 0; }
+
+.amount-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.amount-left {
+  display: flex;
+  align-items: baseline;
+  gap: 4px;
+  flex: 1;
+  min-width: 0;
+}
+
+.amount-sign {
+  font-family: 'Geist Mono', monospace;
+  font-size: 26px;
+  font-weight: 300;
+  line-height: 1;
+  flex-shrink: 0;
+  transition: color 0.2s;
+}
+
+.amount-sign.neg { color: var(--red); }
+.amount-sign.pos { color: var(--green); }
+
+.amount-input {
+  font-family: 'Geist Mono', monospace;
+  font-size: 40px;
+  font-weight: 300;
+  color: var(--text);
+  background: none;
+  border: none;
+  outline: none;
+  width: 100%;
+  caret-color: var(--text2);
+  letter-spacing: -1px;
+  min-width: 0;
+}
+
+.amount-input::placeholder { color: var(--text3); }
+
+.toggle-btn {
+  flex-shrink: 0;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 8px 14px;
+  font-family: 'Geist', sans-serif;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+  color: var(--text2);
+  white-space: nowrap;
+}
+
+.toggle-btn.gasto  { color: var(--red);   border-color: rgba(224,92,75,0.3);   background: rgba(224,92,75,0.08); }
+.toggle-btn.ingreso{ color: var(--green); border-color: rgba(76,175,130,0.3); background: rgba(76,175,130,0.08); }
+
+.divider { height: 1px; background: var(--border); margin: 18px 20px 0; }
+
+.search-wrap { padding: 14px 20px 0; }
+
+.search-input {
+  width: 100%;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  outline: none;
+  font-family: 'Geist', sans-serif;
+  font-size: 14px;
+  color: var(--text);
+  padding: 10px 14px;
+  caret-color: var(--text2);
+}
+
+.search-input::placeholder { color: var(--text3); }
+
+.categories-wrap {
+  flex: 1;
+  overflow-y: auto;
+  padding: 12px 20px 0;
+  -webkit-overflow-scrolling: touch;
+}
+
+.cat-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+
+.cat-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 11px 12px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  cursor: pointer;
+  transition: all 0.15s;
+  text-align: left;
+  width: 100%;
+}
+
+.cat-item:active { transform: scale(0.97); }
+
+.cat-emoji { font-size: 16px; flex-shrink: 0; line-height: 1; }
+
+.cat-name {
+  font-size: 12px;
+  font-weight: 400;
+  color: var(--text2);
+  transition: color 0.15s;
+  line-height: 1.2;
+}
+
+.cat-item.selected { background: var(--surface2); border-color: var(--text3); }
+.cat-item.selected .cat-name { color: var(--text); font-weight: 500; }
+.cat-item.hidden { display: none; }
+
+.confirm-wrap {
+  padding: 14px 20px 32px;
+  background: var(--bg);
+  border-top: 1px solid var(--border);
+  margin-top: 12px;
+}
+
+.btn-confirm {
+  width: 100%;
+  background: var(--text);
+  color: var(--bg);
+  border: none;
+  border-radius: 10px;
+  padding: 15px;
+  font-family: 'Geist', sans-serif;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: opacity 0.15s;
+}
+
+.btn-confirm:active { opacity: 0.85; }
+.btn-confirm:disabled { opacity: 0.15; cursor: not-allowed; }
+
+/* =========================================
+   OVERLAYS & ANIMATIONS
+   ========================================= */
+.overlay {
+  position: fixed;
+  inset: 0;
+  background: var(--bg);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.2s;
+  z-index: 100;
+}
+
+.overlay.show { opacity: 1; pointer-events: all; }
+.overlay-icon { font-size: 36px; }
+.overlay-title { font-size: 18px; font-weight: 500; color: var(--text); }
+.overlay-sub { font-size: 12px; color: var(--text2); font-family: 'Geist Mono', monospace; }
+
+/* UX: Loading Card & Context */
+.loading-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 20px;
+  width: 85%;
+  max-width: 320px;
+  text-align: center;
+}
+
+.loading-context {
+  font-family: 'Geist Mono', monospace;
+  font-size: 14px;
+  color: var(--text);
+  margin-bottom: 12px;
+}
+
+.loading-text {
+  font-size: 12px;
+  color: var(--text2);
+  margin-bottom: 8px;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+/* UX: Progress Bar con Ribbing y Power Function */
+.progress-container {
+  width: 100%;
+  height: 10px;
+  background: var(--surface2);
+  border-radius: 6px;
+  overflow: hidden;
+}
+
+.progress-ribbing {
+  height: 100%;
+  width: 0%; /* Inicia en 0 */
+  background-color: var(--text);
+  background-image: repeating-linear-gradient(
+    -45deg,
+    rgba(0, 0, 0, 0.15) 25%,
+    transparent 25%,
+    transparent 50%,
+    rgba(0, 0, 0, 0.15) 50%,
+    rgba(0, 0, 0, 0.15) 75%,
+    transparent 75%,
+    transparent
+  );
+  background-size: 20px 20px;
+  animation: moveRibbing 1s linear infinite;
+  transition: width 2.5s cubic-bezier(0.1, 0.9, 0.2, 1); 
+}
+
+@keyframes moveRibbing {
+  0% { background-position: 0 0; }
+  100% { background-position: 20px 0; }
+}
+
+/* UX: Checkmark Animation */
+.success-anim {
+  width: 56px;
+  height: 56px;
+  margin-bottom: 12px;
+}
+
+.checkmark {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  display: block;
+  stroke-width: 3;
+  stroke: var(--green);
+  stroke-miterlimit: 10;
+  box-shadow: inset 0px 0px 0px var(--green);
+  animation: fill .4s ease-in-out .4s forwards, scale .3s ease-in-out .9s both;
+}
+
+.checkmark-circle {
+  stroke-dasharray: 166;
+  stroke-dashoffset: 166;
+  stroke-width: 3;
+  stroke-miterlimit: 10;
+  stroke: var(--green);
+  fill: none;
+  animation: stroke 0.6s cubic-bezier(0.65, 0, 0.45, 1) forwards;
+}
+
+.checkmark-check {
+  transform-origin: 50% 50%;
+  stroke-dasharray: 48;
+  stroke-dashoffset: 48;
+  animation: stroke 0.3s cubic-bezier(0.65, 0, 0.45, 1) 0.6s forwards;
+}
+
+@keyframes stroke { 100% { stroke-dashoffset: 0; } }
+@keyframes scale { 0%, 100% { transform: none; } 50% { transform: scale3d(1.1, 1.1, 1); } }
+@keyframes fill { 100% { box-shadow: inset 0px 0px 0px 30px rgba(76, 175, 130, 0.1); } }
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <span class="app-tag" id="app-tag">—</span>
+  <button class="cancel-btn" id="btn-cancel">Cancelar</button>
+</div>
+
+<div class="dates-row">
+  <div class="date-field">
+    <span class="date-label">Fecha Resultado</span>
+    <input class="date-input" type="date" id="fecha-resultado">
+  </div>
+  <div class="date-field">
+    <span class="date-label">Fecha Caja</span>
+    <input class="date-input" type="date" id="fecha-caja">
+  </div>
+</div>
+
+<div class="amount-block">
+  <div class="amount-row">
+    <div class="amount-left">
+      <span class="amount-sign neg" id="amount-sign">−</span>
+      <input class="amount-input" id="monto-input" type="text" inputmode="decimal" placeholder="0,00">
+    </div>
+    <button class="toggle-btn gasto" id="toggle-btn">Gasto</button>
+  </div>
+</div>
+
+<div class="divider"></div>
+
+<div class="search-wrap">
+  <input class="search-input" id="search-input" type="text" placeholder="Buscar categoría..." autocomplete="off" autocorrect="off" spellcheck="false">
+</div>
+
+<div class="categories-wrap">
+  <div class="cat-grid" id="cat-grid"></div>
+</div>
+
+<div class="confirm-wrap">
+  <button class="btn-confirm" id="btn-confirm" disabled>Registrar</button>
+</div>
+
 <div class="overlay" id="ov-loading">
   <div class="loading-card">
     <div class="loading-context" id="loading-context"></div>
@@ -18,3 +432,184 @@
   <span class="overlay-title">Guardado</span>
   <span class="overlay-sub" id="ok-detail"></span>
 </div>
+
+<div class="overlay" id="ov-error">
+  <span class="overlay-icon">✕</span>
+  <span class="overlay-title">Error</span>
+  <span class="overlay-sub">No se pudo registrar</span>
+  <button class="cancel-btn" style="margin-top:16px" onclick="hideAll()">Volver</button>
+</div>
+
+<script>
+const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyIVeD1gCQba82X83v2bG1mJdCvLr3CLToXHxXZbhIiV6eYQCDR9llhdUZqbizGJSSG/exec";
+
+const CATS_GASTO = [
+  ["🍽️","Comida"],["🚗","Transporte"],["🔧","Auto"],["⛽","Combustible"],
+  ["💪","GYM"],["👕","Ropa"],["🎁","Cumples y Regalos"],["🛒","Compra"],
+  ["🦷","Dentista"],["📱","Suscripción"],["🧴","Salud y aseo"],["🎉","Evento"],
+  ["🎓","Facultad"],["📚","Educación"],["🅿️","Estacionamiento"],["📡","Datos"],
+  ["✂️","Peluquería"],["💸","Propinas"],["🎲","Apuesta y Juego"],["🛡️","Seguro"],
+  ["🏛️","Impuestos"],["❓","Desconocido"],["📦","Otros"]
+];
+
+const CATS_INGRESO = [
+  ["💼","Sueldo Lucom"],["💰","Comisión Lucom"],["🎓","Clases"],["🏷️","Venta"],
+  ["🎄","Aguinaldo Lucom"],["📈","Rendimientos"],["🎁","Cumples y Regalos"],
+  ["🎲","Apuesta y Juego"],["❓","Desconocido"],["📦","Otros"]
+];
+
+// Leer params
+const p        = new URLSearchParams(window.location.search);
+const textoParam = decodeURIComponent(p.get("texto") || "");
+const appParam   = (p.get("app") || "").toLowerCase();
+const signoParam = p.get("signo") || "negativo";
+
+// Extraer monto del texto de la notificación
+function extraerMonto(texto) {
+  const match = texto.match(/\$\s*([\d.,]+)/);
+  if (!match) return "";
+  return match[1];
+}
+
+// Fecha de hoy
+function todayStr() {
+  return new Date().toISOString().split("T")[0];
+}
+
+function formatDateForSheet(dateStr) {
+  const [y, m, d] = dateStr.split("-");
+  return `${d}/${m}/${y}`;
+}
+
+// State
+let isGasto = signoParam !== "positivo";
+let selected = null;
+
+// Init UI
+document.getElementById("app-tag").textContent = appParam || "pago";
+document.getElementById("monto-input").value = extraerMonto(textoParam);
+document.getElementById("fecha-resultado").value = todayStr();
+document.getElementById("fecha-caja").value = todayStr();
+
+const toggleBtn = document.getElementById("toggle-btn");
+const signEl    = document.getElementById("amount-sign");
+
+function updateToggle() {
+  if (isGasto) {
+    toggleBtn.textContent = "Gasto";
+    toggleBtn.className = "toggle-btn gasto";
+    signEl.textContent = "−";
+    signEl.className = "amount-sign neg";
+  } else {
+    toggleBtn.textContent = "Ingreso";
+    toggleBtn.className = "toggle-btn ingreso";
+    signEl.textContent = "+";
+    signEl.className = "amount-sign pos";
+  }
+  selected = null;
+  document.getElementById("btn-confirm").disabled = true;
+  document.getElementById("search-input").value = "";
+  buildCats();
+}
+
+toggleBtn.addEventListener("click", () => { isGasto = !isGasto; updateToggle(); });
+
+function buildCats() {
+  const grid = document.getElementById("cat-grid");
+  grid.innerHTML = "";
+  const cats = isGasto ? CATS_GASTO : CATS_INGRESO;
+  cats.forEach(([emoji, name]) => {
+    const btn = document.createElement("button");
+    btn.className = "cat-item";
+    btn.dataset.name = name.toLowerCase();
+    btn.innerHTML = `<span class="cat-emoji">${emoji}</span><span class="cat-name">${name}</span>`;
+    btn.addEventListener("click", () => {
+      document.querySelectorAll(".cat-item").forEach(b => b.classList.remove("selected"));
+      btn.classList.add("selected");
+      selected = name;
+      document.getElementById("btn-confirm").disabled = false;
+      btn.scrollIntoView({ behavior: "smooth", block: "nearest" });
+    });
+    grid.appendChild(btn);
+  });
+}
+
+buildCats();
+updateToggle();
+
+// Search
+document.getElementById("search-input").addEventListener("input", e => {
+  const q = e.target.value.toLowerCase().trim();
+  document.querySelectorAll(".cat-item").forEach(btn => {
+    btn.classList.toggle("hidden", q.length > 0 && !btn.dataset.name.includes(q));
+  });
+});
+
+// Confirm & Animations
+document.getElementById("btn-confirm").addEventListener("click", async () => {
+  if (!selected) return;
+  const monto = document.getElementById("monto-input").value.trim();
+  if (!monto) return;
+
+  const montoFinal     = isGasto ? "-" + monto : monto;
+  const fechaResultado = formatDateForSheet(document.getElementById("fecha-resultado").value);
+  const fechaCaja      = formatDateForSheet(document.getElementById("fecha-caja").value);
+
+  // Setear contexto visual
+  const colorSigno = isGasto ? 'var(--red)' : 'var(--green)';
+  document.getElementById("loading-context").innerHTML = 
+    `Registrando <span style="color:${colorSigno}">$${monto}</span> en <b>${selected}</b>`;
+  
+  // Reiniciar barra y mostrar
+  const progressBar = document.getElementById("progress-bar");
+  progressBar.style.transition = 'none';
+  progressBar.style.width = '0%';
+  showOverlay("ov-loading");
+
+  // Iniciar animación (Power Function)
+  setTimeout(() => {
+    progressBar.style.transition = 'width 2.5s cubic-bezier(0.1, 0.9, 0.2, 1)';
+    progressBar.style.width = '90%';
+  }, 50);
+
+  try {
+    await fetch(APPS_SCRIPT_URL, {
+      method: "POST",
+      mode: "no-cors",
+      headers: { "Content-Type": "text/plain" },
+      body: JSON.stringify({
+        monto: montoFinal,
+        descripcion: textoParam,
+        app: appParam,
+        categoria: selected,
+        yaConSigno: true,
+        fechaResultado,
+        fechaCaja
+      })
+    });
+    
+    // Completar la barra al 100% rápido
+    progressBar.style.transition = 'width 0.2s ease-out';
+    progressBar.style.width = '100%';
+
+    // Darle 300ms al usuario para ver el 100% antes de la pantalla de éxito
+    setTimeout(() => {
+      hideAll();
+      document.getElementById("ok-detail").textContent = `${montoFinal} · ${selected}`;
+      showOverlay("ov-ok");
+      setTimeout(() => window.close(), 2200); // Dar tiempo a la animación SVG
+    }, 300);
+
+  } catch {
+    hideAll();
+    showOverlay("ov-error");
+  }
+});
+
+document.getElementById("btn-cancel").addEventListener("click", () => window.close());
+
+function showOverlay(id) { hideAll(); document.getElementById(id).classList.add("show"); }
+function hideAll() { document.querySelectorAll(".overlay").forEach(o => o.classList.remove("show")); }
+</script>
+</body>
+</html>
