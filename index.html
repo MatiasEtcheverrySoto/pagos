@@ -30,7 +30,6 @@ body {
   overflow-x: hidden;
 }
 
-/* ── TOP BAR ── */
 .topbar {
   display: flex;
   align-items: center;
@@ -56,7 +55,6 @@ body {
   padding: 4px 0;
 }
 
-/* ── DATES ── */
 .dates-row {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -91,15 +89,9 @@ body {
   color: var(--text);
   width: 100%;
   cursor: pointer;
+  color-scheme: dark;
 }
 
-.date-input::-webkit-calendar-picker-indicator {
-  filter: invert(0.4);
-  cursor: pointer;
-  margin-left: -2px;
-}
-
-/* ── AMOUNT ── */
 .amount-block { padding: 20px 20px 0; }
 
 .amount-row {
@@ -113,6 +105,7 @@ body {
   align-items: baseline;
   gap: 4px;
   flex: 1;
+  min-width: 0;
 }
 
 .amount-sign {
@@ -120,6 +113,7 @@ body {
   font-size: 26px;
   font-weight: 300;
   line-height: 1;
+  flex-shrink: 0;
   transition: color 0.2s;
 }
 
@@ -157,13 +151,11 @@ body {
   white-space: nowrap;
 }
 
-.toggle-btn.gasto { color: var(--red); border-color: rgba(224,92,75,0.3); background: rgba(224,92,75,0.08); }
-.toggle-btn.ingreso { color: var(--green); border-color: rgba(76,175,130,0.3); background: rgba(76,175,130,0.08); }
+.toggle-btn.gasto  { color: var(--red);   border-color: rgba(224,92,75,0.3);   background: rgba(224,92,75,0.08); }
+.toggle-btn.ingreso{ color: var(--green); border-color: rgba(76,175,130,0.3); background: rgba(76,175,130,0.08); }
 
-/* ── DIVIDER ── */
 .divider { height: 1px; background: var(--border); margin: 18px 20px 0; }
 
-/* ── SEARCH ── */
 .search-wrap { padding: 14px 20px 0; }
 
 .search-input {
@@ -181,7 +173,6 @@ body {
 
 .search-input::placeholder { color: var(--text3); }
 
-/* ── CATEGORIES ── */
 .categories-wrap {
   flex: 1;
   overflow-y: auto;
@@ -221,15 +212,10 @@ body {
   line-height: 1.2;
 }
 
-.cat-item.selected {
-  background: var(--surface2);
-  border-color: var(--text3);
-}
-
+.cat-item.selected { background: var(--surface2); border-color: var(--text3); }
 .cat-item.selected .cat-name { color: var(--text); font-weight: 500; }
 .cat-item.hidden { display: none; }
 
-/* ── CONFIRM ── */
 .confirm-wrap {
   padding: 14px 20px 32px;
   background: var(--bg);
@@ -254,7 +240,6 @@ body {
 .btn-confirm:active { opacity: 0.85; }
 .btn-confirm:disabled { opacity: 0.15; cursor: not-allowed; }
 
-/* ── OVERLAYS ── */
 .overlay {
   position: fixed;
   inset: 0;
@@ -292,7 +277,6 @@ body {
   <button class="cancel-btn" id="btn-cancel">Cancelar</button>
 </div>
 
-<!-- Fechas -->
 <div class="dates-row">
   <div class="date-field">
     <span class="date-label">Fecha Resultado</span>
@@ -304,7 +288,6 @@ body {
   </div>
 </div>
 
-<!-- Monto -->
 <div class="amount-block">
   <div class="amount-row">
     <div class="amount-left">
@@ -362,36 +345,40 @@ const CATS_INGRESO = [
   ["🎲","Apuesta y Juego"],["❓","Desconocido"],["📦","Otros"]
 ];
 
-// Params
-const p = new URLSearchParams(window.location.search);
-const montoParam = p.get("monto") || "";
+// Leer params
+const p        = new URLSearchParams(window.location.search);
+const textoParam = decodeURIComponent(p.get("texto") || "");
 const appParam   = (p.get("app") || "").toLowerCase();
-const textoParam = p.get("texto") || "";
 const signoParam = p.get("signo") || "negativo";
+
+// Extraer monto del texto de la notificación
+function extraerMonto(texto) {
+  const match = texto.match(/\$\s*([\d.,]+)/);
+  if (!match) return "";
+  // Limpiar: sacar puntos de miles, dejar coma decimal
+  return match[1];
+}
+
+// Fecha de hoy en formato YYYY-MM-DD
+function todayStr() {
+  return new Date().toISOString().split("T")[0];
+}
+
+function formatDateForSheet(dateStr) {
+  const [y, m, d] = dateStr.split("-");
+  return `${d}/${m}/${y}`;
+}
 
 // State
 let isGasto = signoParam !== "positivo";
 let selected = null;
 
-// Today's date in YYYY-MM-DD
-function todayStr() {
-  const d = new Date();
-  return d.toISOString().split("T")[0];
-}
-
-function formatDateForSheet(dateStr) {
-  // dateStr is YYYY-MM-DD, convert to DD/MM/YYYY
-  const [y, m, d] = dateStr.split("-");
-  return `${d}/${m}/${y}`;
-}
-
-// Init
+// Init UI
 document.getElementById("app-tag").textContent = appParam || "pago";
-document.getElementById("monto-input").value = montoParam;
+document.getElementById("monto-input").value = extraerMonto(textoParam);
 document.getElementById("fecha-resultado").value = todayStr();
 document.getElementById("fecha-caja").value = todayStr();
 
-// Toggle gasto/ingreso
 const toggleBtn = document.getElementById("toggle-btn");
 const signEl    = document.getElementById("amount-sign");
 
@@ -413,12 +400,8 @@ function updateToggle() {
   buildCats();
 }
 
-toggleBtn.addEventListener("click", () => {
-  isGasto = !isGasto;
-  updateToggle();
-});
+toggleBtn.addEventListener("click", () => { isGasto = !isGasto; updateToggle(); });
 
-// Build categories
 function buildCats() {
   const grid = document.getElementById("cat-grid");
   grid.innerHTML = "";
@@ -456,15 +439,16 @@ document.getElementById("btn-confirm").addEventListener("click", async () => {
   const monto = document.getElementById("monto-input").value.trim();
   if (!monto) return;
 
-  const montoFinal   = isGasto ? "-" + monto : monto;
+  const montoFinal     = isGasto ? "-" + monto : monto;
   const fechaResultado = formatDateForSheet(document.getElementById("fecha-resultado").value);
   const fechaCaja      = formatDateForSheet(document.getElementById("fecha-caja").value);
 
   showOverlay("ov-loading");
   try {
-    const res = await fetch(APPS_SCRIPT_URL, {
+    await fetch(APPS_SCRIPT_URL, {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      mode: "no-cors",
+      headers: { "Content-Type": "text/plain" },
       body: JSON.stringify({
         monto: montoFinal,
         descripcion: textoParam,
@@ -475,15 +459,10 @@ document.getElementById("btn-confirm").addEventListener("click", async () => {
         fechaCaja
       })
     });
-    const json = await res.json();
     hideAll();
-    if (json.status === "ok" || json.status === "ignorado") {
-      document.getElementById("ok-detail").textContent = `${montoFinal} · ${selected}`;
-      showOverlay("ov-ok");
-      setTimeout(() => window.close(), 2000);
-    } else {
-      showOverlay("ov-error");
-    }
+    document.getElementById("ok-detail").textContent = `${montoFinal} · ${selected}`;
+    showOverlay("ov-ok");
+    setTimeout(() => window.close(), 2000);
   } catch {
     hideAll();
     showOverlay("ov-error");
