@@ -325,10 +325,45 @@ body {
   100% { transform: skewX(-20deg) translateX(250%); }
 }
 
-#ov-error { align-items: center; justify-content: center; gap: 12px; }
-.error-icon { font-size: 36px; }
-.error-title { font-size: 18px; font-weight: 500; }
-.cancel-btn { font-size: 13px; color: var(--text2); background: none; border: none; cursor: pointer; padding: 4px 0; }
+/* =========================================
+   PANTALLA DE ERROR REFINADA
+   ========================================= */
+#ov-error { 
+  align-items: center; 
+  justify-content: center; 
+  text-align: center;
+  gap: 16px; 
+}
+.error-icon { 
+  font-size: 48px; 
+  color: var(--red); 
+}
+.error-title { 
+  font-size: 20px; 
+  font-weight: 600; 
+  color: var(--text);
+}
+.error-subtitle {
+  font-family: 'Geist Mono', monospace; 
+  font-size: 13px; 
+  color: var(--text2);
+}
+.cancel-btn { 
+  font-family: 'Geist', sans-serif;
+  font-size: 14px; 
+  font-weight: 500;
+  color: var(--text); 
+  background: var(--surface2); 
+  border: 1px solid var(--border); 
+  border-radius: 8px;
+  cursor: pointer; 
+  padding: 10px 24px;
+  margin-top: 12px;
+  transition: opacity 0.2s;
+}
+.cancel-btn:active {
+  opacity: 0.7;
+}
 </style>
 </head>
 <body>
@@ -422,9 +457,9 @@ body {
 
 <div class="overlay" id="ov-error">
   <span class="error-icon">✕</span>
-  <span class="error-title">Error</span>
-  <span style="font-family:'Geist Mono', monospace; font-size:12px; color:var(--text2);">No se pudo registrar</span>
-  <button class="cancel-btn" style="margin-top:16px" onclick="hideAll()">Volver</button>
+  <span class="error-title">Hubo un error</span>
+  <span class="error-subtitle">No se pudo registrar la operación.</span>
+  <button class="cancel-btn" onclick="hideAll()">Volver a intentar</button>
 </div>
 
 <script>
@@ -588,7 +623,7 @@ document.getElementById("btn-confirm").addEventListener("click", async () => {
   }, 1000);
 
   try {
-    // LLAMADA AL SERVIDOR SEGURA (keepalive: true permite cerrar el navegador sin riesgo)
+    // LLAMADA AL SERVIDOR SEGURA
     await fetch(APPS_SCRIPT_URL, {
       method: "POST",
       mode: "no-cors",
@@ -609,7 +644,6 @@ document.getElementById("btn-confirm").addEventListener("click", async () => {
     clearTimeout(stepsTimeout);
     clearInterval(creepInterval);
 
-    // Barra al 100% y cierre instantáneo
     bar.style.transition = 'width 0.1s ease-out';
     bar.style.width = '100%';
 
