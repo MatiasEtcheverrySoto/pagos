@@ -4,18 +4,20 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>Pago</title>
-<link href="https://fonts.googleapis.com/css2?family=Geist+Mono:wght@300;400;500&family=Geist:wght@300;400;500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Geist+Mono:wght@300;400;500&family=Geist:wght@300;400;500;600&display=swap" rel="stylesheet">
 <style>
 * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
 
 :root {
-  --bg: #fafaf9;
-  --text: #1a1a18;
+  --bg: #111110;
+  --surface: #1c1c1a;
+  --surface2: #252523;
+  --border: #2e2e2b;
+  --text: #f0f0ee;
   --text2: #888880;
-  --text3: #bbbbb0;
-  --border: #e8e8e4;
-  --red: #c0392b;
-  --green: #27ae60;
+  --text3: #444440;
+  --red: #e05c4b;
+  --green: #4caf82;
 }
 
 body {
@@ -25,13 +27,15 @@ body {
   min-height: 100dvh;
   display: flex;
   flex-direction: column;
+  overflow-x: hidden;
 }
 
+/* ── TOP BAR ── */
 .topbar {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 20px 24px 0;
+  padding: 18px 20px 0;
 }
 
 .app-tag {
@@ -44,7 +48,7 @@ body {
 
 .cancel-btn {
   font-size: 13px;
-  color: var(--text3);
+  color: var(--text2);
   background: none;
   border: none;
   cursor: pointer;
@@ -52,20 +56,71 @@ body {
   padding: 4px 0;
 }
 
-.amount-block { padding: 28px 24px 0; }
+/* ── DATES ── */
+.dates-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  padding: 16px 20px 0;
+}
+
+.date-field {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 10px 12px;
+}
+
+.date-label {
+  font-family: 'Geist Mono', monospace;
+  font-size: 9px;
+  letter-spacing: 0.15em;
+  color: var(--text3);
+  text-transform: uppercase;
+}
+
+.date-input {
+  background: none;
+  border: none;
+  outline: none;
+  font-family: 'Geist Mono', monospace;
+  font-size: 13px;
+  color: var(--text);
+  width: 100%;
+  cursor: pointer;
+}
+
+.date-input::-webkit-calendar-picker-indicator {
+  filter: invert(0.4);
+  cursor: pointer;
+  margin-left: -2px;
+}
+
+/* ── AMOUNT ── */
+.amount-block { padding: 20px 20px 0; }
 
 .amount-row {
   display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.amount-left {
+  display: flex;
   align-items: baseline;
-  gap: 6px;
+  gap: 4px;
+  flex: 1;
 }
 
 .amount-sign {
   font-family: 'Geist Mono', monospace;
-  font-size: 28px;
+  font-size: 26px;
   font-weight: 300;
   line-height: 1;
-  padding-bottom: 3px;
+  transition: color 0.2s;
 }
 
 .amount-sign.neg { color: var(--red); }
@@ -73,7 +128,7 @@ body {
 
 .amount-input {
   font-family: 'Geist Mono', monospace;
-  font-size: 44px;
+  font-size: 40px;
   font-weight: 300;
   color: var(--text);
   background: none;
@@ -82,109 +137,124 @@ body {
   width: 100%;
   caret-color: var(--text2);
   letter-spacing: -1px;
+  min-width: 0;
 }
 
 .amount-input::placeholder { color: var(--text3); }
 
-.divider { height: 1px; background: var(--border); margin: 20px 24px 0; }
+.toggle-btn {
+  flex-shrink: 0;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 8px 14px;
+  font-family: 'Geist', sans-serif;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+  color: var(--text2);
+  white-space: nowrap;
+}
 
-.search-wrap { padding: 16px 24px 0; }
+.toggle-btn.gasto { color: var(--red); border-color: rgba(224,92,75,0.3); background: rgba(224,92,75,0.08); }
+.toggle-btn.ingreso { color: var(--green); border-color: rgba(76,175,130,0.3); background: rgba(76,175,130,0.08); }
+
+/* ── DIVIDER ── */
+.divider { height: 1px; background: var(--border); margin: 18px 20px 0; }
+
+/* ── SEARCH ── */
+.search-wrap { padding: 14px 20px 0; }
 
 .search-input {
   width: 100%;
-  background: none;
-  border: none;
-  border-bottom: 1px solid var(--border);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
   outline: none;
   font-family: 'Geist', sans-serif;
   font-size: 14px;
   color: var(--text);
-  padding: 0 0 10px;
+  padding: 10px 14px;
   caret-color: var(--text2);
 }
 
 .search-input::placeholder { color: var(--text3); }
 
+/* ── CATEGORIES ── */
 .categories-wrap {
   flex: 1;
   overflow-y: auto;
-  padding: 12px 24px 0;
+  padding: 12px 20px 0;
   -webkit-overflow-scrolling: touch;
+}
+
+.cat-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
 }
 
 .cat-item {
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  padding: 14px 0;
-  border-bottom: 1px solid var(--border);
+  gap: 8px;
+  padding: 11px 12px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 10px;
   cursor: pointer;
-  background: none;
-  border-left: none;
-  border-right: none;
-  border-top: none;
-  width: 100%;
+  transition: all 0.15s;
   text-align: left;
-  transition: opacity 0.1s;
+  width: 100%;
 }
 
-.cat-item:first-child { border-top: 1px solid var(--border); }
-.cat-item:active { opacity: 0.4; }
+.cat-item:active { transform: scale(0.97); }
+
+.cat-emoji { font-size: 16px; flex-shrink: 0; line-height: 1; }
 
 .cat-name {
-  font-size: 15px;
+  font-size: 12px;
   font-weight: 400;
   color: var(--text2);
   transition: color 0.15s;
+  line-height: 1.2;
 }
 
-.cat-check {
-  width: 18px;
-  height: 18px;
-  border-radius: 50%;
-  border: 1.5px solid var(--border);
-  flex-shrink: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: all 0.15s;
+.cat-item.selected {
+  background: var(--surface2);
+  border-color: var(--text3);
 }
 
 .cat-item.selected .cat-name { color: var(--text); font-weight: 500; }
-.cat-item.selected .cat-check { background: var(--text); border-color: var(--text); }
-.cat-item.selected .cat-check::after {
-  content: '';
-  width: 6px;
-  height: 6px;
-  border-radius: 50%;
-  background: white;
-}
-
 .cat-item.hidden { display: none; }
 
+/* ── CONFIRM ── */
 .confirm-wrap {
-  padding: 16px 24px 36px;
+  padding: 14px 20px 32px;
   background: var(--bg);
   border-top: 1px solid var(--border);
+  margin-top: 12px;
 }
 
 .btn-confirm {
   width: 100%;
   background: var(--text);
-  color: white;
+  color: var(--bg);
   border: none;
   border-radius: 10px;
-  padding: 16px;
+  padding: 15px;
   font-family: 'Geist', sans-serif;
   font-size: 15px;
-  font-weight: 500;
+  font-weight: 600;
   cursor: pointer;
   transition: opacity 0.15s;
 }
 
-.btn-confirm:active { opacity: 0.8; }
-.btn-confirm:disabled { opacity: 0.2; cursor: not-allowed; }
+.btn-confirm:active { opacity: 0.85; }
+.btn-confirm:disabled { opacity: 0.15; cursor: not-allowed; }
 
+/* ── OVERLAYS ── */
 .overlay {
   position: fixed;
   inset: 0;
@@ -202,8 +272,8 @@ body {
 
 .overlay.show { opacity: 1; pointer-events: all; }
 .overlay-icon { font-size: 36px; }
-.overlay-title { font-size: 18px; font-weight: 500; }
-.overlay-sub { font-size: 12px; color: var(--text2); font-family: 'Geist Mono', monospace; letter-spacing: 0.05em; }
+.overlay-title { font-size: 18px; font-weight: 500; color: var(--text); }
+.overlay-sub { font-size: 12px; color: var(--text2); font-family: 'Geist Mono', monospace; }
 
 .spinner {
   width: 24px; height: 24px;
@@ -222,20 +292,38 @@ body {
   <button class="cancel-btn" id="btn-cancel">Cancelar</button>
 </div>
 
+<!-- Fechas -->
+<div class="dates-row">
+  <div class="date-field">
+    <span class="date-label">Fecha Resultado</span>
+    <input class="date-input" type="date" id="fecha-resultado">
+  </div>
+  <div class="date-field">
+    <span class="date-label">Fecha Caja</span>
+    <input class="date-input" type="date" id="fecha-caja">
+  </div>
+</div>
+
+<!-- Monto -->
 <div class="amount-block">
   <div class="amount-row">
-    <span class="amount-sign" id="amount-sign">−</span>
-    <input class="amount-input" id="monto-input" type="text" inputmode="decimal" placeholder="0,00">
+    <div class="amount-left">
+      <span class="amount-sign neg" id="amount-sign">−</span>
+      <input class="amount-input" id="monto-input" type="text" inputmode="decimal" placeholder="0,00">
+    </div>
+    <button class="toggle-btn gasto" id="toggle-btn">Gasto</button>
   </div>
 </div>
 
 <div class="divider"></div>
 
 <div class="search-wrap">
-  <input class="search-input" id="search-input" type="text" placeholder="Buscar..." autocomplete="off" autocorrect="off" spellcheck="false">
+  <input class="search-input" id="search-input" type="text" placeholder="Buscar categoría..." autocomplete="off" autocorrect="off" spellcheck="false">
 </div>
 
-<div class="categories-wrap" id="cat-list"></div>
+<div class="categories-wrap">
+  <div class="cat-grid" id="cat-grid"></div>
+</div>
 
 <div class="confirm-wrap">
   <button class="btn-confirm" id="btn-confirm" disabled>Registrar</button>
@@ -253,58 +341,106 @@ body {
   <span class="overlay-icon">✕</span>
   <span class="overlay-title">Error</span>
   <span class="overlay-sub">No se pudo registrar</span>
-  <button class="cancel-btn" style="margin-top:16px;color:var(--text2)" onclick="hideAll()">Volver</button>
+  <button class="cancel-btn" style="margin-top:16px" onclick="hideAll()">Volver</button>
 </div>
 
 <script>
-const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyIVeD1gCQba82X83v2bG1mJdCvLr3CLToXHxXZbhIiV6eYQCDR9llhdUZqbizGJSSG/exec";
+const APPS_SCRIPT_URL = "PEGA_AQUI_TU_URL_DEL_APPS_SCRIPT";
 
-const CATS_NEG = [
-  "Comida","Transporte","Auto","Combustible","GYM","Ropa",
-  "Cumples y Regalos","Compra","Dentista","Suscripción",
-  "Salud y aseo","Evento","Facultad","Educación","Estacionamiento",
-  "Datos","Peluquería","Propinas","Apuesta y Juego","Seguro",
-  "Impuestos","Desconocido","Otros"
+const CATS_GASTO = [
+  ["🍽️","Comida"],["🚗","Transporte"],["🔧","Auto"],["⛽","Combustible"],
+  ["💪","GYM"],["👕","Ropa"],["🎁","Cumples y Regalos"],["🛒","Compra"],
+  ["🦷","Dentista"],["📱","Suscripción"],["🧴","Salud y aseo"],["🎉","Evento"],
+  ["🎓","Facultad"],["📚","Educación"],["🅿️","Estacionamiento"],["📡","Datos"],
+  ["✂️","Peluquería"],["💸","Propinas"],["🎲","Apuesta y Juego"],["🛡️","Seguro"],
+  ["🏛️","Impuestos"],["❓","Desconocido"],["📦","Otros"]
 ];
 
-const CATS_POS = [
-  "Sueldo Lucom","Comisión Lucom","Clases","Venta","Aguinaldo Lucom",
-  "Rendimientos","Cumples y Regalos","Apuesta y Juego","Desconocido","Otros"
+const CATS_INGRESO = [
+  ["💼","Sueldo Lucom"],["💰","Comisión Lucom"],["🎓","Clases"],["🏷️","Venta"],
+  ["🎄","Aguinaldo Lucom"],["📈","Rendimientos"],["🎁","Cumples y Regalos"],
+  ["🎲","Apuesta y Juego"],["❓","Desconocido"],["📦","Otros"]
 ];
 
-const p        = new URLSearchParams(window.location.search);
+// Params
+const p = new URLSearchParams(window.location.search);
 const montoParam = p.get("monto") || "";
 const appParam   = (p.get("app") || "").toLowerCase();
 const textoParam = p.get("texto") || "";
 const signoParam = p.get("signo") || "negativo";
-const isPos      = signoParam === "positivo";
 
+// State
+let isGasto = signoParam !== "positivo";
+let selected = null;
+
+// Today's date in YYYY-MM-DD
+function todayStr() {
+  const d = new Date();
+  return d.toISOString().split("T")[0];
+}
+
+function formatDateForSheet(dateStr) {
+  // dateStr is YYYY-MM-DD, convert to DD/MM/YYYY
+  const [y, m, d] = dateStr.split("-");
+  return `${d}/${m}/${y}`;
+}
+
+// Init
 document.getElementById("app-tag").textContent = appParam || "pago";
 document.getElementById("monto-input").value = montoParam;
+document.getElementById("fecha-resultado").value = todayStr();
+document.getElementById("fecha-caja").value = todayStr();
 
-const signEl = document.getElementById("amount-sign");
-signEl.textContent = isPos ? "+" : "−";
-signEl.className   = "amount-sign " + (isPos ? "pos" : "neg");
+// Toggle gasto/ingreso
+const toggleBtn = document.getElementById("toggle-btn");
+const signEl    = document.getElementById("amount-sign");
 
-// Build list
-const cats    = isPos ? CATS_POS : CATS_NEG;
-const catList = document.getElementById("cat-list");
-let selected  = null;
+function updateToggle() {
+  if (isGasto) {
+    toggleBtn.textContent = "Gasto";
+    toggleBtn.className = "toggle-btn gasto";
+    signEl.textContent = "−";
+    signEl.className = "amount-sign neg";
+  } else {
+    toggleBtn.textContent = "Ingreso";
+    toggleBtn.className = "toggle-btn ingreso";
+    signEl.textContent = "+";
+    signEl.className = "amount-sign pos";
+  }
+  selected = null;
+  document.getElementById("btn-confirm").disabled = true;
+  document.getElementById("search-input").value = "";
+  buildCats();
+}
 
-cats.forEach(name => {
-  const btn = document.createElement("button");
-  btn.className    = "cat-item";
-  btn.dataset.name = name.toLowerCase();
-  btn.innerHTML    = `<span class="cat-name">${name}</span><span class="cat-check"></span>`;
-  btn.addEventListener("click", () => {
-    document.querySelectorAll(".cat-item").forEach(b => b.classList.remove("selected"));
-    btn.classList.add("selected");
-    selected = name;
-    document.getElementById("btn-confirm").disabled = false;
-    btn.scrollIntoView({ behavior: "smooth", block: "nearest" });
-  });
-  catList.appendChild(btn);
+toggleBtn.addEventListener("click", () => {
+  isGasto = !isGasto;
+  updateToggle();
 });
+
+// Build categories
+function buildCats() {
+  const grid = document.getElementById("cat-grid");
+  grid.innerHTML = "";
+  const cats = isGasto ? CATS_GASTO : CATS_INGRESO;
+  cats.forEach(([emoji, name]) => {
+    const btn = document.createElement("button");
+    btn.className = "cat-item";
+    btn.dataset.name = name.toLowerCase();
+    btn.innerHTML = `<span class="cat-emoji">${emoji}</span><span class="cat-name">${name}</span>`;
+    btn.addEventListener("click", () => {
+      document.querySelectorAll(".cat-item").forEach(b => b.classList.remove("selected"));
+      btn.classList.add("selected");
+      selected = name;
+      document.getElementById("btn-confirm").disabled = false;
+      btn.scrollIntoView({ behavior: "smooth", block: "nearest" });
+    });
+    grid.appendChild(btn);
+  });
+}
+
+buildCats();
+updateToggle();
 
 // Search
 document.getElementById("search-input").addEventListener("input", e => {
@@ -320,11 +456,13 @@ document.getElementById("btn-confirm").addEventListener("click", async () => {
   const monto = document.getElementById("monto-input").value.trim();
   if (!monto) return;
 
-  const montoFinal = isPos ? monto : "-" + monto;
-  showOverlay("ov-loading");
+  const montoFinal   = isGasto ? "-" + monto : monto;
+  const fechaResultado = formatDateForSheet(document.getElementById("fecha-resultado").value);
+  const fechaCaja      = formatDateForSheet(document.getElementById("fecha-caja").value);
 
+  showOverlay("ov-loading");
   try {
-    const res  = await fetch(APPS_SCRIPT_URL, {
+    const res = await fetch(APPS_SCRIPT_URL, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
@@ -332,7 +470,9 @@ document.getElementById("btn-confirm").addEventListener("click", async () => {
         descripcion: textoParam,
         app: appParam,
         categoria: selected,
-        yaConSigno: true
+        yaConSigno: true,
+        fechaResultado,
+        fechaCaja
       })
     });
     const json = await res.json();
