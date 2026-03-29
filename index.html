@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>Pago</title>
-<link href="https://fonts.googleapis.com/css2?family=Geist+Mono:wght@300;400;500&family=Geist:wght@300;400;500;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Geist+Mono:wght@300;400;500;600&family=Geist:wght@300;400;500;600&display=swap" rel="stylesheet">
 <style>
 /* =========================================
    VARIABLES & RESET
@@ -21,6 +21,8 @@
   --text3: #444440;
   --red: #e05c4b;
   --green: #4caf82;
+  /* Nuevo gradiente vibrante para la barra */
+  --bar-gradient: linear-gradient(90deg, #3b82f6, #8b5cf6, #ec4899);
 }
 
 body {
@@ -247,7 +249,7 @@ body {
 .btn-confirm:disabled { opacity: 0.15; cursor: not-allowed; }
 
 /* =========================================
-   OVERLAYS & ANIMATIONS
+   OVERLAY DE CARGA (NUEVO UX)
    ========================================= */
 .overlay {
   position: fixed;
@@ -257,7 +259,6 @@ body {
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 12px;
   opacity: 0;
   pointer-events: none;
   transition: opacity 0.2s;
@@ -265,109 +266,172 @@ body {
 }
 
 .overlay.show { opacity: 1; pointer-events: all; }
-.overlay-icon { font-size: 36px; }
-.overlay-title { font-size: 18px; font-weight: 500; color: var(--text); }
-.overlay-sub { font-size: 12px; color: var(--text2); font-family: 'Geist Mono', monospace; }
 
-/* UX: Loading Card & Context */
 .loading-card {
   background: var(--surface);
   border: 1px solid var(--border);
-  border-radius: 12px;
-  padding: 20px;
+  border-radius: 16px;
+  padding: 24px;
   width: 85%;
-  max-width: 320px;
-  text-align: center;
+  max-width: 340px;
+  box-shadow: 0 10px 40px rgba(0,0,0,0.5);
 }
 
-.loading-context {
+/* Caja de Resumen de Datos */
+.summary-box {
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 14px 16px;
+  margin-bottom: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.sum-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
   font-family: 'Geist Mono', monospace;
-  font-size: 14px;
-  color: var(--text);
-  margin-bottom: 12px;
+  font-size: 12px;
 }
 
-.loading-text {
-  font-size: 12px;
-  color: var(--text2);
-  margin-bottom: 8px;
-  font-weight: 500;
-  text-transform: uppercase;
+.sum-label {
+  color: var(--text3);
   letter-spacing: 0.05em;
 }
 
-/* UX: Progress Bar con Ribbing y Power Function */
-.progress-container {
+.sum-val {
+  color: var(--text);
+  font-weight: 500;
+  text-align: right;
+}
+
+/* Textos Dinámicos de Estado */
+.status-text {
+  font-size: 13px;
+  color: var(--text2);
+  margin-bottom: 12px;
+  font-weight: 500;
+  text-align: center;
+  height: 16px; /* Evita saltos de layout */
+  transition: color 0.3s;
+}
+
+/* Barra de Progreso Avanzada */
+.progress-wrapper {
+  position: relative;
   width: 100%;
-  height: 10px;
-  background: var(--surface2);
+  height: 12px;
+  background: var(--bg);
   border-radius: 6px;
   overflow: hidden;
+  box-shadow: inset 0 1px 3px rgba(0,0,0,0.3);
 }
 
-.progress-ribbing {
-  height: 100%;
-  width: 0%; /* Inicia en 0 */
-  background-color: var(--text);
+.progress-bar {
+  position: absolute;
+  top: 0; left: 0; bottom: 0;
+  width: 0%;
+  background: var(--bar-gradient);
+  border-radius: 6px;
+  overflow: hidden;
+  /* Transición por defecto suave, se altera en JS para el impulso inicial */
+  transition: width 0.2s linear, background-color 0.4s ease;
+}
+
+/* Estado de Éxito en la barra */
+.progress-bar.success-state {
+  background: var(--green);
+}
+
+/* Ilusión óptica 1: Rayas en reversa */
+.progress-stripes {
+  position: absolute;
+  inset: 0;
   background-image: repeating-linear-gradient(
-    -45deg,
-    rgba(0, 0, 0, 0.15) 25%,
-    transparent 25%,
-    transparent 50%,
-    rgba(0, 0, 0, 0.15) 50%,
-    rgba(0, 0, 0, 0.15) 75%,
-    transparent 75%,
-    transparent
+    45deg,
+    rgba(255, 255, 255, 0.15) 0,
+    rgba(255, 255, 255, 0.15) 12px,
+    transparent 12px,
+    transparent 24px
   );
-  background-size: 20px 20px;
-  animation: moveRibbing 1s linear infinite;
-  transition: width 2.5s cubic-bezier(0.1, 0.9, 0.2, 1); 
+  background-size: 34px 34px;
+  animation: moveStripesReverse 0.8s linear infinite reverse;
 }
 
-@keyframes moveRibbing {
-  0% { background-position: 0 0; }
-  100% { background-position: 20px 0; }
+/* Ocultar rayas al terminar */
+.progress-bar.success-state .progress-stripes {
+  opacity: 0;
+  transition: opacity 0.3s;
 }
 
-/* UX: Checkmark Animation */
-.success-anim {
-  width: 56px;
-  height: 56px;
-  margin-bottom: 12px;
+/* Ilusión óptica 2: Brillo pulsante */
+.progress-shimmer {
+  position: absolute;
+  top: 0; left: 0; bottom: 0; width: 60%;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.5), transparent);
+  transform: skewX(-20deg) translateX(-150%);
+  animation: shimmer 1.8s infinite;
 }
 
-.checkmark {
-  width: 100%;
-  height: 100%;
-  border-radius: 50%;
-  display: block;
-  stroke-width: 3;
+/* Animación Inline de Checkmark (Celebración) */
+.success-celebration {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  margin-top: 16px;
+  height: 24px;
+  opacity: 0;
+  transform: translateY(10px);
+  transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.success-celebration.show {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.success-celebration span {
+  color: var(--green);
+  font-weight: 600;
+  font-size: 15px;
+}
+
+.inline-check {
+  width: 22px; height: 22px;
   stroke: var(--green);
-  stroke-miterlimit: 10;
-  box-shadow: inset 0px 0px 0px var(--green);
-  animation: fill .4s ease-in-out .4s forwards, scale .3s ease-in-out .9s both;
-}
-
-.checkmark-circle {
-  stroke-dasharray: 166;
-  stroke-dashoffset: 166;
   stroke-width: 3;
-  stroke-miterlimit: 10;
-  stroke: var(--green);
+  stroke-linecap: round;
+  stroke-linejoin: round;
   fill: none;
-  animation: stroke 0.6s cubic-bezier(0.65, 0, 0.45, 1) forwards;
+  stroke-dasharray: 24;
+  stroke-dashoffset: 24;
 }
 
-.checkmark-check {
-  transform-origin: 50% 50%;
-  stroke-dasharray: 48;
-  stroke-dashoffset: 48;
-  animation: stroke 0.3s cubic-bezier(0.65, 0, 0.45, 1) 0.6s forwards;
+.success-celebration.show .inline-check {
+  animation: drawCheck 0.4s ease forwards 0.2s;
 }
 
-@keyframes stroke { 100% { stroke-dashoffset: 0; } }
-@keyframes scale { 0%, 100% { transform: none; } 50% { transform: scale3d(1.1, 1.1, 1); } }
-@keyframes fill { 100% { box-shadow: inset 0px 0px 0px 30px rgba(76, 175, 130, 0.1); } }
+@keyframes moveStripesReverse {
+  0% { background-position: 0 0; }
+  100% { background-position: 34px 0; }
+}
+
+@keyframes shimmer {
+  100% { transform: skewX(-20deg) translateX(250%); }
+}
+
+@keyframes drawCheck {
+  to { stroke-dashoffset: 0; }
+}
+
+/* Pantalla Error Simple */
+#ov-error { flex-direction: column; gap: 12px; }
+.error-icon { font-size: 36px; }
+.error-title { font-size: 18px; font-weight: 500; }
 </style>
 </head>
 <body>
@@ -379,12 +443,12 @@ body {
 
 <div class="dates-row">
   <div class="date-field">
-    <span class="date-label">Fecha Resultado</span>
-    <input class="date-input" type="date" id="fecha-resultado">
-  </div>
-  <div class="date-field">
     <span class="date-label">Fecha Caja</span>
     <input class="date-input" type="date" id="fecha-caja">
+  </div>
+  <div class="date-field">
+    <span class="date-label">Fecha Resultado</span>
+    <input class="date-input" type="date" id="fecha-resultado">
   </div>
 </div>
 
@@ -414,29 +478,35 @@ body {
 
 <div class="overlay" id="ov-loading">
   <div class="loading-card">
-    <div class="loading-context" id="loading-context"></div>
-    <div class="loading-text">Cargando...</div>
-    <div class="progress-container">
-      <div class="progress-ribbing" id="progress-bar"></div>
+    
+    <div class="summary-box">
+      <div class="sum-row"><span class="sum-label">FECHA CAJA</span><span class="sum-val" id="sum-caja"></span></div>
+      <div class="sum-row"><span class="sum-label">FECHA RDO.</span><span class="sum-val" id="sum-rdo"></span></div>
+      <div class="sum-row"><span class="sum-label">MONTO</span><span class="sum-val" id="sum-monto"></span></div>
+      <div class="sum-row"><span class="sum-label">CATEGORÍA</span><span class="sum-val" id="sum-cat"></span></div>
     </div>
-  </div>
-</div>
 
-<div class="overlay" id="ov-ok">
-  <div class="success-anim">
-    <svg class="checkmark" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 52 52">
-      <circle class="checkmark-circle" cx="26" cy="26" r="25" fill="none"/>
-      <path class="checkmark-check" fill="none" d="M14.1 27.2l7.1 7.2 16.7-16.8"/>
-    </svg>
+    <div class="status-text" id="status-text">Cargando...</div>
+    
+    <div class="progress-wrapper">
+      <div class="progress-bar" id="progress-bar">
+        <div class="progress-stripes"></div>
+        <div class="progress-shimmer"></div>
+      </div>
+    </div>
+
+    <div class="success-celebration" id="success-celebration">
+      <svg class="inline-check" viewBox="0 0 24 24"><path d="M5 13l4 4L19 7"/></svg>
+      <span>Registrado correctamente</span>
+    </div>
+
   </div>
-  <span class="overlay-title">Guardado</span>
-  <span class="overlay-sub" id="ok-detail"></span>
 </div>
 
 <div class="overlay" id="ov-error">
-  <span class="overlay-icon">✕</span>
-  <span class="overlay-title">Error</span>
-  <span class="overlay-sub">No se pudo registrar</span>
+  <span class="error-icon">✕</span>
+  <span class="error-title">Error</span>
+  <span class="sum-label">No se pudo registrar</span>
   <button class="cancel-btn" style="margin-top:16px" onclick="hideAll()">Volver</button>
 </div>
 
@@ -464,14 +534,12 @@ const textoParam = decodeURIComponent(p.get("texto") || "");
 const appParam   = (p.get("app") || "").toLowerCase();
 const signoParam = p.get("signo") || "negativo";
 
-// Extraer monto del texto de la notificación
 function extraerMonto(texto) {
   const match = texto.match(/\$\s*([\d.,]+)/);
   if (!match) return "";
   return match[1];
 }
 
-// Fecha de hoy
 function todayStr() {
   return new Date().toISOString().split("T")[0];
 }
@@ -537,7 +605,6 @@ function buildCats() {
 buildCats();
 updateToggle();
 
-// Search
 document.getElementById("search-input").addEventListener("input", e => {
   const q = e.target.value.toLowerCase().trim();
   document.querySelectorAll(".cat-item").forEach(btn => {
@@ -545,34 +612,74 @@ document.getElementById("search-input").addEventListener("input", e => {
   });
 });
 
-// Confirm & Animations
+// LOGICA DE CONFIRMACIÓN Y ANIMACIONES
+let stepsTimeout, creepInterval;
+
 document.getElementById("btn-confirm").addEventListener("click", async () => {
   if (!selected) return;
   const monto = document.getElementById("monto-input").value.trim();
   if (!monto) return;
 
-  const montoFinal     = isGasto ? "-" + monto : monto;
-  const fechaResultado = formatDateForSheet(document.getElementById("fecha-resultado").value);
-  const fechaCaja      = formatDateForSheet(document.getElementById("fecha-caja").value);
-
-  // Setear contexto visual
-  const colorSigno = isGasto ? 'var(--red)' : 'var(--green)';
-  document.getElementById("loading-context").innerHTML = 
-    `Registrando <span style="color:${colorSigno}">$${monto}</span> en <b>${selected}</b>`;
+  const montoFinal = isGasto ? "-" + monto : monto;
   
-  // Reiniciar barra y mostrar
-  const progressBar = document.getElementById("progress-bar");
-  progressBar.style.transition = 'none';
-  progressBar.style.width = '0%';
+  const rawFechaCaja = document.getElementById("fecha-caja").value;
+  const rawFechaRdo  = document.getElementById("fecha-resultado").value;
+
+  const fechaCajaSheet = formatDateForSheet(rawFechaCaja);
+  const fechaRdoSheet  = formatDateForSheet(rawFechaRdo);
+
+  // 1. Preparar datos visuales
+  document.getElementById("sum-caja").textContent = fechaCajaSheet;
+  document.getElementById("sum-rdo").textContent = fechaRdoSheet;
+  
+  const montoSpan = document.getElementById("sum-monto");
+  montoSpan.textContent = isGasto ? `-$${monto}` : `+$${monto}`;
+  montoSpan.style.color = isGasto ? 'var(--red)' : 'var(--green)';
+
+  const cats = isGasto ? CATS_GASTO : CATS_INGRESO;
+  const catObj = cats.find(c => c[1] === selected);
+  document.getElementById("sum-cat").textContent = `${catObj ? catObj[0] : ''} ${selected}`;
+
+  // 2. Reiniciar UI de la barra
+  const bar = document.getElementById("progress-bar");
+  const statusEl = document.getElementById("status-text");
+  const checkWrap = document.getElementById("success-celebration");
+
+  bar.classList.remove("success-state");
+  bar.style.transition = 'none';
+  bar.style.width = '0%';
+  checkWrap.classList.remove("show");
+  statusEl.style.color = "var(--text2)";
+  statusEl.textContent = "Iniciando...";
+
   showOverlay("ov-loading");
 
-  // Iniciar animación (Power Function)
+  // 3. Inicio Rápido (0 a 50%)
   setTimeout(() => {
-    progressBar.style.transition = 'width 2.5s cubic-bezier(0.1, 0.9, 0.2, 1)';
-    progressBar.style.width = '90%';
+    bar.style.transition = 'width 0.8s cubic-bezier(0.2, 0.8, 0.2, 1)';
+    bar.style.width = '45%';
+    statusEl.textContent = "Mandando fechas y monto...";
   }, 50);
 
+  // 4. Segundo paso visual
+  stepsTimeout = setTimeout(() => {
+    bar.style.transition = 'width 1.2s cubic-bezier(0.1, 0.8, 0.4, 1)';
+    bar.style.width = '75%';
+    statusEl.textContent = "Registrando categoría...";
+  }, 800);
+
+  // 5. Creep infinito (nunca se detiene)
+  creepInterval = setInterval(() => {
+    let currentW = parseFloat(bar.style.width);
+    if(currentW < 96) {
+      bar.style.transition = 'width 0.5s linear';
+      bar.style.width = (currentW + 1) + '%';
+      statusEl.textContent = "Guardando en hoja...";
+    }
+  }, 1000);
+
   try {
+    // LLAMADA AL SERVIDOR
     await fetch(APPS_SCRIPT_URL, {
       method: "POST",
       mode: "no-cors",
@@ -583,24 +690,32 @@ document.getElementById("btn-confirm").addEventListener("click", async () => {
         app: appParam,
         categoria: selected,
         yaConSigno: true,
-        fechaResultado,
-        fechaCaja
+        fechaResultado: fechaRdoSheet,
+        fechaCaja: fechaCajaSheet
       })
     });
     
-    // Completar la barra al 100% rápido
-    progressBar.style.transition = 'width 0.2s ease-out';
-    progressBar.style.width = '100%';
+    // 6. Celebración (Todo ok)
+    clearTimeout(stepsTimeout);
+    clearInterval(creepInterval);
 
-    // Darle 300ms al usuario para ver el 100% antes de la pantalla de éxito
-    setTimeout(() => {
-      hideAll();
-      document.getElementById("ok-detail").textContent = `${montoFinal} · ${selected}`;
-      showOverlay("ov-ok");
-      setTimeout(() => window.close(), 2200); // Dar tiempo a la animación SVG
-    }, 300);
+    // Barra al 100% y cambia a color verde
+    bar.style.transition = 'width 0.3s ease-out, background-color 0.3s ease';
+    bar.style.width = '100%';
+    bar.classList.add("success-state");
+
+    statusEl.textContent = "¡Completado!";
+    statusEl.style.opacity = "0"; // Lo ocultamos para darle foco al check
+
+    // Aparece el check y texto en la misma pantalla
+    checkWrap.classList.add("show");
+
+    // Cierra luego de admirar la animación
+    setTimeout(() => window.close(), 2300);
 
   } catch {
+    clearTimeout(stepsTimeout);
+    clearInterval(creepInterval);
     hideAll();
     showOverlay("ov-error");
   }
