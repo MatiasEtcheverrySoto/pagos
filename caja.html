@@ -13,13 +13,10 @@
 :root {
   --bg: #111110;
   --surface: #1c1c1a;
-  --surface2: #252523;
   --border: #2e2e2b;
   --text: #f0f0ee;
   --text2: #888880;
   --text3: #444440;
-  --red: #e05c4b;
-  --green: #22c55e;
 }
 
 body {
@@ -29,7 +26,6 @@ body {
   min-height: 100dvh;
   display: flex;
   flex-direction: column;
-  overflow-x: hidden;
 }
 
 .table-wrap {
@@ -64,7 +60,6 @@ body {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 8px;
-  align-items: center;
 }
 
 .cell-input {
@@ -73,24 +68,19 @@ body {
   border-radius: 8px;
   padding: 10px 12px;
   font-family: 'Geist Mono', monospace;
-  font-size: 13px;
-  color: var(--text);
+  font-size: 12px;
+  color: var(--text2);
   outline: none;
   width: 100%;
-  caret-color: var(--text2);
-  transition: border-color 0.15s;
+  caret-color: var(--text);
+  transition: border-color 0.15s, color 0.15s;
   color-scheme: dark;
 }
 
-.cell-input:focus { border-color: var(--text3); }
-.cell-input::placeholder { color: var(--text3); }
-
-/* Colores para columna K */
-.cell-input.positive { color: var(--green); }
-.cell-input.negative { color: var(--red); }
-
-/* Fórmulas en gris */
-.cell-input.formula { color: var(--text2); font-style: italic; }
+.cell-input:focus {
+  border-color: var(--text3);
+  color: var(--text);
+}
 
 .confirm-wrap {
   padding: 14px 20px 32px;
@@ -116,7 +106,14 @@ body {
 .btn-confirm:active { opacity: 0.85; }
 .btn-confirm:disabled { opacity: 0.15; cursor: not-allowed; }
 
-/* OVERLAYS */
+.skeleton {
+  height: 40px;
+  background: var(--surface);
+  border-radius: 8px;
+  animation: pulse 1.5s ease-in-out infinite;
+}
+@keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.4} }
+
 .overlay {
   position: fixed;
   inset: 0;
@@ -133,11 +130,9 @@ body {
   text-align: center;
   padding: 24px;
 }
-
 .overlay.show { opacity: 1; pointer-events: all; }
 .overlay-icon { font-size: 36px; }
 .overlay-title { font-size: 18px; font-weight: 500; }
-.overlay-sub { font-size: 12px; color: var(--text2); font-family: 'Geist Mono', monospace; }
 
 .spinner {
   width: 24px; height: 24px;
@@ -148,18 +143,6 @@ body {
 }
 @keyframes spin { to { transform: rotate(360deg); } }
 
-.skeleton {
-  height: 40px;
-  background: var(--surface);
-  border-radius: 8px;
-  border: 1px solid var(--border);
-  animation: pulse 1.5s ease-in-out infinite;
-}
-@keyframes pulse {
-  0%, 100% { opacity: 1; }
-  50% { opacity: 0.4; }
-}
-
 .cancel-btn {
   font-size: 13px;
   color: var(--text2);
@@ -167,6 +150,7 @@ body {
   border: none;
   cursor: pointer;
   font-family: 'Geist', sans-serif;
+  margin-top: 8px;
 }
 </style>
 </head>
@@ -178,7 +162,7 @@ body {
     <span class="col-label">Monto (ARS)</span>
   </div>
   <div class="rows-container" id="rows-container">
-    <div class="row-item" id="loading-skeleton">
+    <div class="row-item">
       <div class="skeleton"></div><div class="skeleton"></div>
       <div class="skeleton"></div><div class="skeleton"></div>
       <div class="skeleton"></div><div class="skeleton"></div>
@@ -194,74 +178,46 @@ body {
 
 <div class="overlay" id="ov-loading">
   <div class="spinner"></div>
-  <span style="color:var(--text2); font-size:13px">Guardando...</span>
+  <span style="color:var(--text2);font-size:13px">Guardando...</span>
 </div>
 
 <div class="overlay" id="ov-ok">
   <span class="overlay-icon">✓</span>
   <span class="overlay-title">Guardado</span>
-  <span class="overlay-sub">Caja actualizada</span>
 </div>
 
 <div class="overlay" id="ov-error">
   <span class="overlay-icon">✕</span>
   <span class="overlay-title">Error</span>
-  <span class="overlay-sub" id="error-msg">No se pudo completar</span>
-  <button class="cancel-btn" style="margin-top:12px" onclick="hideAll()">Volver</button>
+  <span style="font-size:12px;color:var(--text2);font-family:'Geist Mono',monospace">No se pudo completar</span>
+  <button class="cancel-btn" onclick="hideAll()">Volver</button>
 </div>
 
 <script>
 const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyIVeD1gCQba82X83v2bG1mJdCvLr3CLToXHxXZbhIiV6eYQCDR9llhdUZqbizGJSSG/exec";
 
-const NUM_ROWS  = 11; // J3:K13
-const START_ROW = 3;
-
-// rawData guarda los valores/fórmulas originales tal como vienen del script
-let rawData    = [];
-// modifiedRows guarda qué filas fueron editadas por el usuario
+const START_ROW = 3; // J3:K13
+let rawData = [];
 let modifiedRows = new Set();
 
-// ── Formatear valor columna K para mostrar ──
-function formatK(val) {
-  if (typeof val === "string" && val.startsWith("=")) return val; // fórmula: mostrar tal cual
-  const num = parseFloat(String(val).replace(/[^0-9.,-]/g, "").replace(",", "."));
-  if (isNaN(num)) return val;
-  const abs = Math.round(Math.abs(num)).toLocaleString("es-AR");
-  return (num < 0 ? "-$" : "$") + abs;
-}
-
-// ── Determinar clase de color para K ──
-function colorClassK(val) {
-  if (typeof val === "string" && val.startsWith("=")) return "formula";
-  const num = parseFloat(String(val).replace(/[^0-9.,-]/g, "").replace(",", "."));
-  if (isNaN(num)) return "";
-  if (num > 0) return "positive";
-  if (num < 0) return "negative";
-  return "";
-}
-
-// ── Cargar datos ──
 async function loadData() {
   try {
     const res  = await fetch(APPS_SCRIPT_URL + "?action=getCaja");
     const json = await res.json();
     if (json.status === "ok") {
-      rawData = json.data; // array de 11 filas [[J,K], ...]
+      rawData = json.data;
       renderRows();
     } else {
-      showError("Error al cargar");
+      showLoadError();
     }
-  } catch {
-    showError("No se pudo conectar");
-  }
+  } catch { showLoadError(); }
 }
 
-function showError(msg) {
+function showLoadError() {
   document.getElementById("rows-container").innerHTML =
-    `<span style="color:var(--text2);font-size:13px;font-family:'Geist Mono',monospace">${msg}</span>`;
+    `<span style="color:var(--text2);font-size:13px;font-family:'Geist Mono',monospace">No se pudo cargar</span>`;
 }
 
-// ── Renderizar filas ──
 function renderRows() {
   const container = document.getElementById("rows-container");
   container.innerHTML = "";
@@ -273,45 +229,17 @@ function renderRows() {
     const rowEl = document.createElement("div");
     rowEl.className = "row-item";
 
-    // Columna J
     const inputJ = document.createElement("input");
-    inputJ.className   = "cell-input";
-    inputJ.type        = "text";
-    inputJ.value       = valJ;
-    inputJ.dataset.row = i;
-    inputJ.dataset.col = "j";
-    if (typeof valJ === "string" && valJ.startsWith("=")) inputJ.classList.add("formula");
-    inputJ.addEventListener("input", () => {
-      modifiedRows.add(i);
-      inputJ.classList.remove("formula");
-    });
+    inputJ.className = "cell-input";
+    inputJ.type      = "text";
+    inputJ.value     = valJ;
+    inputJ.addEventListener("input", () => modifiedRows.add(i));
 
-    // Columna K
     const inputK = document.createElement("input");
-    inputK.className   = "cell-input " + colorClassK(valK);
-    inputK.type        = "text";
-    inputK.value       = formatK(valK);
-    inputK.dataset.row = i;
-    inputK.dataset.col = "k";
-    inputK.dataset.raw = valK; // guardamos el raw original
-    if (typeof valK === "string" && valK.startsWith("=")) inputK.classList.add("formula");
-
-    // Al hacer focus en K, mostrar valor raw para editar
-    inputK.addEventListener("focus", () => {
-      inputK.value = inputK.dataset.raw;
-      inputK.classList.remove("positive", "negative", "formula");
-    });
-
-    // Al salir de K, reformatear
-    inputK.addEventListener("blur", () => {
-      const newVal = inputK.value.trim();
-      inputK.dataset.raw = newVal;
-      inputK.value = formatK(newVal);
-      inputK.className = "cell-input " + colorClassK(newVal);
-      if (typeof newVal === "string" && newVal.startsWith("=")) inputK.classList.add("formula");
-    });
-
-    inputK.addEventListener("input", () => { modifiedRows.add(i); });
+    inputK.className = "cell-input";
+    inputK.type      = "text";
+    inputK.value     = valK;
+    inputK.addEventListener("input", () => modifiedRows.add(i));
 
     rowEl.appendChild(inputJ);
     rowEl.appendChild(inputK);
@@ -321,24 +249,20 @@ function renderRows() {
   document.getElementById("btn-confirm").disabled = false;
 }
 
-// ── Guardar solo las filas modificadas ──
 document.getElementById("btn-confirm").addEventListener("click", async () => {
   if (modifiedRows.size === 0) { window.close(); return; }
 
-  // Construir array de cambios: [{row: N, j: val, k: val}, ...]
+  const allRows = document.querySelectorAll(".row-item");
   const changes = [];
-  const inputs = document.querySelectorAll(".cell-input");
 
   modifiedRows.forEach(i => {
-    // Cada fila tiene 2 inputs: J en posición i*2, K en i*2+1
-    const allRows = document.querySelectorAll(".row-item");
-    const rowEl   = allRows[i];
+    const rowEl = allRows[i];
     if (!rowEl) return;
     const [inJ, inK] = rowEl.querySelectorAll(".cell-input");
     changes.push({
-      row: START_ROW + i, // fila real en el sheet (3-based)
-      j: inJ.value.trim(),
-      k: inK.dataset.raw ?? inK.value.trim()
+      row: START_ROW + i,
+      j: inJ.value,
+      k: inK.value
     });
   });
 
@@ -353,7 +277,7 @@ document.getElementById("btn-confirm").addEventListener("click", async () => {
     });
     hideAll();
     showOverlay("ov-ok");
-    setTimeout(() => window.close(), 1800);
+    setTimeout(() => window.close(), 1500);
   } catch {
     hideAll();
     showOverlay("ov-error");
@@ -363,7 +287,6 @@ document.getElementById("btn-confirm").addEventListener("click", async () => {
 function showOverlay(id) { hideAll(); document.getElementById(id).classList.add("show"); }
 function hideAll() { document.querySelectorAll(".overlay").forEach(o => o.classList.remove("show")); }
 
-// Fullscreen al primer toque
 document.addEventListener("click", () => {
   if (document.documentElement.requestFullscreen) {
     document.documentElement.requestFullscreen().catch(() => {});
