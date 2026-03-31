@@ -3,12 +3,13 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <title>Pago</title>
+<link rel="manifest" href="manifest.json">
 <link href="https://fonts.googleapis.com/css2?family=Geist+Mono:wght@300;400;500;600&family=Geist:wght@300;400;500;600&display=swap" rel="stylesheet">
 <style>
-/* =========================================
-   VARIABLES & RESET
-   ========================================= */
 * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
 
 :root {
@@ -33,9 +34,6 @@ body {
   overflow-x: hidden;
 }
 
-/* =========================================
-   UI PRINCIPAL
-   ========================================= */
 .dates-row {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -139,8 +137,8 @@ body {
 
 .divider { height: 1px; background: var(--border); margin: 18px 20px 0; }
 
-.search-wrap { 
-  padding: 14px 20px 0; 
+.search-wrap {
+  padding: 14px 20px 0;
   position: relative;
 }
 
@@ -196,7 +194,6 @@ body {
 }
 
 .cat-item:active { transform: scale(0.97); }
-
 .cat-emoji { font-size: 16px; flex-shrink: 0; line-height: 1; }
 
 .cat-name {
@@ -210,6 +207,14 @@ body {
 .cat-item.selected { background: var(--surface2); border-color: var(--text3); }
 .cat-item.selected .cat-name { color: var(--text); font-weight: 500; }
 .cat-item.hidden { display: none; }
+
+/* Separador dentro del grid */
+.cat-separator {
+  grid-column: 1 / -1;
+  height: 1px;
+  background: var(--border);
+  margin: 4px 0;
+}
 
 .confirm-wrap {
   padding: 14px 20px 32px;
@@ -235,9 +240,7 @@ body {
 .btn-confirm:active { opacity: 0.85; }
 .btn-confirm:disabled { opacity: 0.15; cursor: not-allowed; }
 
-/* =========================================
-   OVERLAY DE CARGA (FOCUS MODE)
-   ========================================= */
+/* OVERLAYS */
 .overlay {
   position: fixed;
   inset: 0;
@@ -253,129 +256,100 @@ body {
 
 .overlay.show { opacity: 1; pointer-events: all; }
 
-.spacer {
-  flex: 1;
-  min-height: 20px;
-}
+.spacer { flex: 1; min-height: 20px; }
 
-.echo-container {
-  display: flex;
-  flex-direction: column;
-  width: 100%;
-}
+.echo-container { display: flex; flex-direction: column; width: 100%; }
 
 .status-text {
   font-size: 15px;
   color: #ffffff;
   margin-bottom: 16px;
   font-weight: 500;
-  text-align: center;
-  letter-spacing: 0.05em;
-  text-transform: uppercase;
 }
 
 .progress-wrapper {
-  position: relative;
   width: 100%;
-  height: 12px;
+  height: 4px;
   background: var(--surface2);
-  border: 1px solid var(--border);
-  border-radius: 6px;
+  border-radius: 2px;
   overflow: hidden;
 }
 
 .progress-bar {
-  position: absolute;
-  top: 0; left: 0; bottom: 0;
+  height: 100%;
   width: 0%;
-  background: var(--green);
-  border-radius: 5px;
+  background: var(--text);
+  border-radius: 2px;
+  position: relative;
   overflow: hidden;
-  transition: width 0.2s linear;
 }
 
 .progress-stripes {
   position: absolute;
   inset: 0;
-  background-image: repeating-linear-gradient(
-    45deg,
-    rgba(255, 255, 255, 0.25) 0,
-    rgba(255, 255, 255, 0.25) 12px,
-    transparent 12px,
-    transparent 24px
+  background: repeating-linear-gradient(
+    -55deg,
+    transparent,
+    transparent 6px,
+    rgba(0,0,0,0.15) 6px,
+    rgba(0,0,0,0.15) 12px
   );
-  background-size: 34px 34px;
-  animation: moveStripesReverse 0.8s linear infinite reverse;
 }
 
 .progress-shimmer {
   position: absolute;
-  top: 0; left: 0; bottom: 0; width: 60%;
-  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.6), transparent);
-  transform: skewX(-20deg) translateX(-150%);
-  animation: shimmer 1.8s infinite;
-}
-
-@keyframes moveStripesReverse {
-  0% { background-position: 0 0; }
-  100% { background-position: 34px 0; }
+  inset: 0;
+  background: linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.3) 50%, transparent 100%);
+  animation: shimmer 1.5s infinite;
 }
 
 @keyframes shimmer {
-  100% { transform: skewX(-20deg) translateX(250%); }
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(100%); }
 }
 
-/* =========================================
-   PANTALLA DE ERROR REFINADA
-   ========================================= */
-#ov-error { 
-  align-items: center; 
-  justify-content: center; 
+#ov-error {
+  align-items: center;
+  justify-content: center;
   text-align: center;
-  gap: 16px; 
+  gap: 12px;
 }
-.error-icon { 
-  font-size: 48px; 
-  color: var(--red); 
-}
-.error-title { 
-  font-size: 20px; 
-  font-weight: 600; 
-  color: var(--text);
-}
-.error-subtitle {
-  font-family: 'Geist Mono', monospace; 
-  font-size: 13px; 
+
+.error-icon { font-size: 36px; }
+.error-title { font-size: 18px; font-weight: 500; }
+.cancel-btn {
+  font-size: 13px;
   color: var(--text2);
-}
-.cancel-btn { 
+  background: none;
+  border: none;
+  cursor: pointer;
   font-family: 'Geist', sans-serif;
-  font-size: 14px; 
-  font-weight: 500;
-  color: var(--text); 
-  background: var(--surface2); 
-  border: 1px solid var(--border); 
-  border-radius: 8px;
-  cursor: pointer; 
-  padding: 10px 24px;
-  margin-top: 12px;
-  transition: opacity 0.2s;
+  padding: 4px 0;
 }
-.cancel-btn:active {
-  opacity: 0.7;
+
+/* Badge solo-caja */
+.solo-caja-badge {
+  display: none;
+  font-family: 'Geist Mono', monospace;
+  font-size: 9px;
+  letter-spacing: 0.1em;
+  color: var(--text3);
+  text-transform: uppercase;
+  margin: 8px 20px 0;
 }
+.solo-caja-badge.show { display: block; }
 </style>
 </head>
 <body>
 
 <div class="dates-row">
   <div class="date-field">
-    <span class="date-label">Fecha Caja</span>
-    <input class="date-input" type="date" id="fecha-caja">
-  </div>
-  <div class="date-field">
     <span class="date-label">Fecha Resultado</span>
     <input class="date-input" type="date" id="fecha-resultado">
+  </div>
+  <div class="date-field">
+    <span class="date-label">Fecha Caja</span>
+    <input class="date-input" type="date" id="fecha-caja">
   </div>
 </div>
 
@@ -389,10 +363,13 @@ body {
   </div>
 </div>
 
+<!-- Badge que aparece cuando la categoría es solo-caja -->
+<span class="solo-caja-badge" id="solo-caja-badge">⚠ Solo se registra en Caja</span>
+
 <div class="divider"></div>
 
 <div class="search-wrap">
-  <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+  <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
     <circle cx="11" cy="11" r="8"></circle>
     <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
   </svg>
@@ -407,9 +384,10 @@ body {
   <button class="btn-confirm" id="btn-confirm" disabled>Registrar</button>
 </div>
 
+<!-- Overlay carga -->
 <div class="overlay" id="ov-loading">
-  
-  <div class="spacer"></div> <div class="echo-container">
+  <div class="spacer"></div>
+  <div class="echo-container">
     <div class="dates-row" style="padding: 0; gap: 16px;">
       <div style="display: flex; flex-direction: column; gap: 8px;">
         <span class="date-label" style="font-size: 13px; color: var(--text2);">Fecha Caja</span>
@@ -424,7 +402,6 @@ body {
         </div>
       </div>
     </div>
-
     <div class="amount-block" style="padding: 0; margin-top: 36px;">
       <span class="date-label" style="font-size: 13px; display: block; margin-bottom: 10px; color: var(--text2);">Monto</span>
       <div class="amount-row">
@@ -434,7 +411,6 @@ body {
         </div>
       </div>
     </div>
-
     <div style="padding: 0; margin-top: 36px;">
       <span class="date-label" style="font-size: 13px; display: block; margin-bottom: 10px; color: var(--text2);">Categoría</span>
       <div class="cat-item selected" style="cursor: default; padding: 18px 24px; width: fit-content; gap: 12px;">
@@ -443,8 +419,8 @@ body {
       </div>
     </div>
   </div>
-
-  <div class="spacer"></div> <div style="width: 100%;">
+  <div class="spacer"></div>
+  <div style="width: 100%;">
     <div class="status-text">Cargando...</div>
     <div class="progress-wrapper">
       <div class="progress-bar" id="progress-bar">
@@ -455,15 +431,21 @@ body {
   </div>
 </div>
 
+<!-- Overlay error -->
 <div class="overlay" id="ov-error">
   <span class="error-icon">✕</span>
-  <span class="error-title">Hubo un error</span>
-  <span class="error-subtitle">No se pudo registrar la operación.</span>
-  <button class="cancel-btn" onclick="hideAll()">Volver a intentar</button>
+  <span class="error-title">Error</span>
+  <span style="font-family:'Geist Mono', monospace; font-size:12px; color:var(--text2);">No se pudo registrar</span>
+  <button class="cancel-btn" style="margin-top:16px" onclick="hideAll()">Volver</button>
 </div>
 
 <script>
 const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyIVeD1gCQba82X83v2bG1mJdCvLr3CLToXHxXZbhIiV6eYQCDR9llhdUZqbizGJSSG/exec";
+
+// Categorías solo-caja (no se escriben en Resultados)
+const SOLO_CAJA = ["Inversión", "Bienes"];
+
+const SEP = "SEP"; // marcador de separador
 
 const CATS_GASTO = [
   ["🍽️","Comida"],["🚗","Transporte"],["🔧","Auto"],["⛽","Combustible"],
@@ -471,30 +453,31 @@ const CATS_GASTO = [
   ["🦷","Dentista"],["📱","Suscripción"],["🧴","Salud y aseo"],["🎉","Evento"],
   ["🎓","Facultad"],["📚","Educación"],["🅿️","Estacionamiento"],["📡","Datos"],
   ["✂️","Peluquería"],["💸","Propinas"],["🎲","Apuesta y Juego"],["🛡️","Seguro"],
-  ["⏳","A confirmar"],["📦","Otros"]
+  ["🏛️","Impuestos"],["❓","Desconocido"],["📦","Otros"],["⏳","A confirmar"],
+  [SEP, SEP],
+  ["📊","Inversión"],["🏠","Bienes"]
 ];
 
 const CATS_INGRESO = [
   ["💼","Sueldo Lucom"],["💰","Comisión Lucom"],["🎓","Clases"],["🏷️","Venta"],
   ["🎄","Aguinaldo Lucom"],["📈","Rendimientos"],["🎁","Cumples y Regalos"],
-  ["🎲","Apuesta y Juego"],["⏳","A confirmar"],["📦","Otros"]
+  ["🎲","Apuesta y Juego"],["❓","Desconocido"],["📦","Otros"],["⏳","A confirmar"],
+  [SEP, SEP],
+  ["📊","Inversión"],["🏠","Bienes"]
 ];
 
-// Leer params
-const p        = new URLSearchParams(window.location.search);
+// Params
+const p          = new URLSearchParams(window.location.search);
 const textoParam = decodeURIComponent(p.get("texto") || "");
 const appParam   = (p.get("app") || "").toLowerCase();
 const signoParam = p.get("signo") || "negativo";
 
 function extraerMonto(texto) {
   const match = texto.match(/\$\s*([\d.,]+)/);
-  if (!match) return "";
-  return match[1];
+  return match ? match[1] : "";
 }
 
-function todayStr() {
-  return new Date().toISOString().split("T")[0];
-}
+function todayStr() { return new Date().toISOString().split("T")[0]; }
 
 function formatDateForSheet(dateStr) {
   const [y, m, d] = dateStr.split("-");
@@ -502,30 +485,27 @@ function formatDateForSheet(dateStr) {
 }
 
 // State
-let isGasto = signoParam !== "positivo";
+let isGasto  = signoParam !== "positivo";
 let selected = null;
+let selectedEmoji = "";
 
-// Init UI
-document.getElementById("monto-input").value = extraerMonto(textoParam);
+// Init
+document.getElementById("monto-input").value    = extraerMonto(textoParam);
 document.getElementById("fecha-resultado").value = todayStr();
-document.getElementById("fecha-caja").value = todayStr();
+document.getElementById("fecha-caja").value      = todayStr();
 
 const toggleBtn = document.getElementById("toggle-btn");
 const signEl    = document.getElementById("amount-sign");
+const badge     = document.getElementById("solo-caja-badge");
 
 function updateToggle() {
-  if (isGasto) {
-    toggleBtn.textContent = "Gasto";
-    toggleBtn.className = "toggle-btn gasto";
-    signEl.textContent = "−";
-    signEl.className = "amount-sign neg";
-  } else {
-    toggleBtn.textContent = "Ingreso";
-    toggleBtn.className = "toggle-btn ingreso";
-    signEl.textContent = "+";
-    signEl.className = "amount-sign pos";
-  }
+  toggleBtn.textContent = isGasto ? "Gasto" : "Ingreso";
+  toggleBtn.className   = "toggle-btn " + (isGasto ? "gasto" : "ingreso");
+  signEl.textContent    = isGasto ? "−" : "+";
+  signEl.className      = "amount-sign " + (isGasto ? "neg" : "pos");
   selected = null;
+  selectedEmoji = "";
+  badge.classList.remove("show");
   document.getElementById("btn-confirm").disabled = true;
   document.getElementById("search-input").value = "";
   buildCats();
@@ -537,18 +517,33 @@ function buildCats() {
   const grid = document.getElementById("cat-grid");
   grid.innerHTML = "";
   const cats = isGasto ? CATS_GASTO : CATS_INGRESO;
+
   cats.forEach(([emoji, name]) => {
+    // Separador
+    if (emoji === SEP) {
+      const sep = document.createElement("div");
+      sep.className = "cat-separator";
+      grid.appendChild(sep);
+      return;
+    }
+
     const btn = document.createElement("button");
-    btn.className = "cat-item";
+    btn.className    = "cat-item";
     btn.dataset.name = name.toLowerCase();
-    btn.innerHTML = `<span class="cat-emoji">${emoji}</span><span class="cat-name">${name}</span>`;
+    btn.dataset.emoji = emoji;
+    btn.innerHTML    = `<span class="cat-emoji">${emoji}</span><span class="cat-name">${name}</span>`;
+
     btn.addEventListener("click", () => {
       document.querySelectorAll(".cat-item").forEach(b => b.classList.remove("selected"));
       btn.classList.add("selected");
-      selected = name;
+      selected      = name;
+      selectedEmoji = emoji;
       document.getElementById("btn-confirm").disabled = false;
+      // Mostrar badge si es solo-caja
+      badge.classList.toggle("show", SOLO_CAJA.includes(name));
       btn.scrollIntoView({ behavior: "smooth", block: "nearest" });
     });
+
     grid.appendChild(btn);
   });
 }
@@ -556,14 +551,22 @@ function buildCats() {
 buildCats();
 updateToggle();
 
+// Search — ocultar también separadores adyacentes si no hay resultados
 document.getElementById("search-input").addEventListener("input", e => {
   const q = e.target.value.toLowerCase().trim();
   document.querySelectorAll(".cat-item").forEach(btn => {
     btn.classList.toggle("hidden", q.length > 0 && !btn.dataset.name.includes(q));
   });
+  // Ocultar separador si todas las cats de abajo están ocultas
+  document.querySelectorAll(".cat-separator").forEach(sep => {
+    const nextVisible = [...sep.parentElement.children].slice(
+      [...sep.parentElement.children].indexOf(sep) + 1
+    ).some(el => el.classList.contains("cat-item") && !el.classList.contains("hidden"));
+    sep.style.display = q && !nextVisible ? "none" : "";
+  });
 });
 
-// LOGICA DE CONFIRMACIÓN Y ANIMACIONES
+// Confirm
 let stepsTimeout, creepInterval;
 
 document.getElementById("btn-confirm").addEventListener("click", async () => {
@@ -571,59 +574,36 @@ document.getElementById("btn-confirm").addEventListener("click", async () => {
   const monto = document.getElementById("monto-input").value.trim();
   if (!monto) return;
 
-  const montoFinal = isGasto ? "-" + monto : monto;
-  
-  const rawFechaCaja = document.getElementById("fecha-caja").value;
-  const rawFechaRdo  = document.getElementById("fecha-resultado").value;
+  const montoFinal      = isGasto ? "-" + monto : monto;
+  const rawFechaCaja    = document.getElementById("fecha-caja").value;
+  const rawFechaRdo     = document.getElementById("fecha-resultado").value;
+  const fechaCajaSheet  = formatDateForSheet(rawFechaCaja);
+  const fechaRdoSheet   = formatDateForSheet(rawFechaRdo);
+  const esSoloCaja      = SOLO_CAJA.includes(selected);
 
-  const fechaCajaSheet = formatDateForSheet(rawFechaCaja);
-  const fechaRdoSheet  = formatDateForSheet(rawFechaRdo);
-
-  // 1. Reflejar datos ampliados en la pantalla de carga
-  document.getElementById("echo-caja").textContent = rawFechaCaja.split("-").reverse().join("/");
-  document.getElementById("echo-rdo").textContent = rawFechaRdo.split("-").reverse().join("/");
-  
+  // Echo overlay
+  document.getElementById("echo-caja").textContent   = rawFechaCaja.split("-").reverse().join("/");
+  document.getElementById("echo-rdo").textContent    = rawFechaRdo.split("-").reverse().join("/");
   const echoSign = document.getElementById("echo-sign");
   echoSign.textContent = isGasto ? "−" : "+";
-  echoSign.className = isGasto ? "amount-sign neg" : "amount-sign pos";
-  
-  document.getElementById("echo-monto").textContent = monto;
-
-  const cats = isGasto ? CATS_GASTO : CATS_INGRESO;
-  const catObj = cats.find(c => c[1] === selected);
-  document.getElementById("echo-emoji").textContent = catObj ? catObj[0] : '';
+  echoSign.className   = isGasto ? "amount-sign neg" : "amount-sign pos";
+  document.getElementById("echo-monto").textContent   = monto;
+  document.getElementById("echo-emoji").textContent   = selectedEmoji;
   document.getElementById("echo-cat-name").textContent = selected;
 
-  // 2. Reiniciar UI de la barra
   const bar = document.getElementById("progress-bar");
-  bar.style.transition = 'none';
-  bar.style.width = '0%';
-
+  bar.style.transition = "none";
+  bar.style.width = "0%";
   showOverlay("ov-loading");
 
-  // 3. Inicio Rápido (0 a 50%)
-  setTimeout(() => {
-    bar.style.transition = 'width 0.8s cubic-bezier(0.2, 0.8, 0.2, 1)';
-    bar.style.width = '45%';
-  }, 50);
-
-  // 4. Segundo paso visual
-  stepsTimeout = setTimeout(() => {
-    bar.style.transition = 'width 1.2s cubic-bezier(0.1, 0.8, 0.4, 1)';
-    bar.style.width = '75%';
-  }, 800);
-
-  // 5. Creep infinito
+  setTimeout(() => { bar.style.transition = "width 0.8s cubic-bezier(0.2,0.8,0.2,1)"; bar.style.width = "45%"; }, 50);
+  stepsTimeout = setTimeout(() => { bar.style.transition = "width 1.2s cubic-bezier(0.1,0.8,0.4,1)"; bar.style.width = "75%"; }, 800);
   creepInterval = setInterval(() => {
-    let currentW = parseFloat(bar.style.width);
-    if(currentW < 96) {
-      bar.style.transition = 'width 0.5s linear';
-      bar.style.width = (currentW + 1) + '%';
-    }
+    let w = parseFloat(bar.style.width);
+    if (w < 96) { bar.style.transition = "width 0.5s linear"; bar.style.width = (w + 1) + "%"; }
   }, 1000);
 
   try {
-    // LLAMADA AL SERVIDOR SEGURA
     await fetch(APPS_SCRIPT_URL, {
       method: "POST",
       mode: "no-cors",
@@ -635,18 +615,16 @@ document.getElementById("btn-confirm").addEventListener("click", async () => {
         app: appParam,
         categoria: selected,
         yaConSigno: true,
+        soloCaja: esSoloCaja,
         fechaResultado: fechaRdoSheet,
         fechaCaja: fechaCajaSheet
       })
     });
-    
-    // 6. Cierre Automático (Éxito)
+
     clearTimeout(stepsTimeout);
     clearInterval(creepInterval);
-
-    bar.style.transition = 'width 0.1s ease-out';
-    bar.style.width = '100%';
-
+    bar.style.transition = "width 0.1s ease-out";
+    bar.style.width = "100%";
     setTimeout(() => window.close(), 150);
 
   } catch {
@@ -659,6 +637,13 @@ document.getElementById("btn-confirm").addEventListener("click", async () => {
 
 function showOverlay(id) { hideAll(); document.getElementById(id).classList.add("show"); }
 function hideAll() { document.querySelectorAll(".overlay").forEach(o => o.classList.remove("show")); }
+
+// Fullscreen al primer toque
+document.addEventListener("click", () => {
+  if (document.documentElement.requestFullscreen) {
+    document.documentElement.requestFullscreen().catch(() => {});
+  }
+}, { once: true });
 </script>
 </body>
 </html>
