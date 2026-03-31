@@ -19,9 +19,7 @@
   --text3: #444440;
 }
 
-html, body {
-  height: 100%;
-}
+html, body { height: 100%; }
 
 body {
   background: var(--bg);
@@ -73,13 +71,14 @@ body {
   min-height: 0;
 }
 
+/* Optimizado con input text para evitar saltos de línea (Enters) accidentales */
 .cell-input {
   background: var(--surface);
   border: 1px solid var(--border);
   border-radius: 8px;
   padding: 10px 12px;
   font-family: 'Geist Mono', monospace;
-  font-size: 12px;
+  font-size: 13px;
   color: var(--text2);
   outline: none;
   width: 100%;
@@ -87,7 +86,6 @@ body {
   caret-color: var(--text);
   transition: border-color 0.15s, color 0.15s;
   color-scheme: dark;
-  resize: none;
 }
 
 .cell-input:focus {
@@ -175,7 +173,6 @@ body {
     <span class="col-label">Monto (ARS)</span>
   </div>
   <div class="rows-container" id="rows-container">
-    <!-- skeletons -->
     <div class="row-item"><div class="skeleton"></div><div class="skeleton"></div></div>
     <div class="row-item"><div class="skeleton"></div><div class="skeleton"></div></div>
     <div class="row-item"><div class="skeleton"></div><div class="skeleton"></div></div>
@@ -215,8 +212,8 @@ body {
 const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyIVeD1gCQba82X83v2bG1mJdCvLr3CLToXHxXZbhIiV6eYQCDR9llhdUZqbizGJSSG/exec";
 
 const START_ROW = 3;
-let rawData = [];        // valores col J
-let formulasK = [];      // fórmulas col K
+let rawData = [];
+let formulasK = [];
 let modifiedRows = new Set();
 
 async function loadData() {
@@ -224,8 +221,8 @@ async function loadData() {
     const res  = await fetch(APPS_SCRIPT_URL + "?action=getCaja");
     const json = await res.json();
     if (json.status === "ok") {
-      rawData   = json.valuesJ;   // textos columna J
-      formulasK = json.formulasK; // fórmulas columna K
+      rawData   = json.valuesJ;
+      formulasK = json.formulasK;
       renderRows();
     } else {
       showLoadError();
@@ -235,7 +232,7 @@ async function loadData() {
 
 function showLoadError() {
   document.getElementById("rows-container").innerHTML =
-    `<span style="color:var(--text2);font-size:13px;font-family:'Geist Mono',monospace;padding:12px 0;display:block">No se pudo cargar</span>`;
+    `<span style="color:var(--text2);font-size:13px;font-family:'Geist Mono',monospace;padding:12px 0;display:block">No se pudo cargar la información</span>`;
 }
 
 function renderRows() {
@@ -248,18 +245,17 @@ function renderRows() {
     const rowEl = document.createElement("div");
     rowEl.className = "row-item";
 
-    // J — siempre texto plano
-    const inputJ = document.createElement("textarea");
+    // Usando input tipo texto
+    const inputJ = document.createElement("input");
+    inputJ.type = "text";
     inputJ.className = "cell-input";
-    inputJ.value     = valJ;
-    inputJ.rows      = 1;
+    inputJ.value = valJ;
     inputJ.addEventListener("input", () => modifiedRows.add(i));
 
-    // K — fórmula o valor
-    const inputK = document.createElement("textarea");
+    const inputK = document.createElement("input");
+    inputK.type = "text";
     inputK.className = "cell-input";
-    inputK.value     = valK;
-    inputK.rows      = 1;
+    inputK.value = valK;
     inputK.addEventListener("input", () => modifiedRows.add(i));
 
     rowEl.appendChild(inputJ);
@@ -308,6 +304,7 @@ document.getElementById("btn-confirm").addEventListener("click", async () => {
 function showOverlay(id) { hideAll(); document.getElementById(id).classList.add("show"); }
 function hideAll() { document.querySelectorAll(".overlay").forEach(o => o.classList.remove("show")); }
 
+// Fullscreen en móvil al tocar
 document.addEventListener("click", () => {
   if (document.documentElement.requestFullscreen) {
     document.documentElement.requestFullscreen().catch(() => {});
