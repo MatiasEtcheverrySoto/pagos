@@ -19,6 +19,10 @@
   --text3: #444440;
 }
 
+html, body {
+  height: 100%;
+}
+
 body {
   background: var(--bg);
   color: var(--text);
@@ -30,8 +34,10 @@ body {
 
 .table-wrap {
   flex: 1;
-  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
   padding: 24px 20px 0;
+  min-height: 0;
 }
 
 .table-header {
@@ -40,6 +46,7 @@ body {
   gap: 8px;
   margin-bottom: 10px;
   padding: 0 2px;
+  flex-shrink: 0;
 }
 
 .col-label {
@@ -51,15 +58,19 @@ body {
 }
 
 .rows-container {
+  flex: 1;
   display: flex;
   flex-direction: column;
   gap: 6px;
+  min-height: 0;
 }
 
 .row-item {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 8px;
+  flex: 1;
+  min-height: 0;
 }
 
 .cell-input {
@@ -72,9 +83,11 @@ body {
   color: var(--text2);
   outline: none;
   width: 100%;
+  height: 100%;
   caret-color: var(--text);
   transition: border-color 0.15s, color 0.15s;
   color-scheme: dark;
+  resize: none;
 }
 
 .cell-input:focus {
@@ -86,7 +99,7 @@ body {
   padding: 14px 20px 32px;
   background: var(--bg);
   border-top: 1px solid var(--border);
-  margin-top: 12px;
+  flex-shrink: 0;
 }
 
 .btn-confirm {
@@ -107,7 +120,7 @@ body {
 .btn-confirm:disabled { opacity: 0.15; cursor: not-allowed; }
 
 .skeleton {
-  height: 40px;
+  flex: 1;
   background: var(--surface);
   border-radius: 8px;
   animation: pulse 1.5s ease-in-out infinite;
@@ -162,13 +175,18 @@ body {
     <span class="col-label">Monto (ARS)</span>
   </div>
   <div class="rows-container" id="rows-container">
-    <div class="row-item">
-      <div class="skeleton"></div><div class="skeleton"></div>
-      <div class="skeleton"></div><div class="skeleton"></div>
-      <div class="skeleton"></div><div class="skeleton"></div>
-      <div class="skeleton"></div><div class="skeleton"></div>
-      <div class="skeleton"></div><div class="skeleton"></div>
-    </div>
+    <!-- skeletons -->
+    <div class="row-item"><div class="skeleton"></div><div class="skeleton"></div></div>
+    <div class="row-item"><div class="skeleton"></div><div class="skeleton"></div></div>
+    <div class="row-item"><div class="skeleton"></div><div class="skeleton"></div></div>
+    <div class="row-item"><div class="skeleton"></div><div class="skeleton"></div></div>
+    <div class="row-item"><div class="skeleton"></div><div class="skeleton"></div></div>
+    <div class="row-item"><div class="skeleton"></div><div class="skeleton"></div></div>
+    <div class="row-item"><div class="skeleton"></div><div class="skeleton"></div></div>
+    <div class="row-item"><div class="skeleton"></div><div class="skeleton"></div></div>
+    <div class="row-item"><div class="skeleton"></div><div class="skeleton"></div></div>
+    <div class="row-item"><div class="skeleton"></div><div class="skeleton"></div></div>
+    <div class="row-item"><div class="skeleton"></div><div class="skeleton"></div></div>
   </div>
 </div>
 
@@ -196,8 +214,9 @@ body {
 <script>
 const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyIVeD1gCQba82X83v2bG1mJdCvLr3CLToXHxXZbhIiV6eYQCDR9llhdUZqbizGJSSG/exec";
 
-const START_ROW = 3; // J3:K13
-let rawData = [];
+const START_ROW = 3;
+let rawData = [];        // valores col J
+let formulasK = [];      // fórmulas col K
 let modifiedRows = new Set();
 
 async function loadData() {
@@ -205,7 +224,8 @@ async function loadData() {
     const res  = await fetch(APPS_SCRIPT_URL + "?action=getCaja");
     const json = await res.json();
     if (json.status === "ok") {
-      rawData = json.data;
+      rawData   = json.valuesJ;   // textos columna J
+      formulasK = json.formulasK; // fórmulas columna K
       renderRows();
     } else {
       showLoadError();
@@ -215,30 +235,31 @@ async function loadData() {
 
 function showLoadError() {
   document.getElementById("rows-container").innerHTML =
-    `<span style="color:var(--text2);font-size:13px;font-family:'Geist Mono',monospace">No se pudo cargar</span>`;
+    `<span style="color:var(--text2);font-size:13px;font-family:'Geist Mono',monospace;padding:12px 0;display:block">No se pudo cargar</span>`;
 }
 
 function renderRows() {
   const container = document.getElementById("rows-container");
   container.innerHTML = "";
 
-  rawData.forEach((row, i) => {
-    const valJ = row[0] ?? "";
-    const valK = row[1] ?? "";
+  rawData.forEach((valJ, i) => {
+    const valK = formulasK[i] ?? "";
 
     const rowEl = document.createElement("div");
     rowEl.className = "row-item";
 
-    const inputJ = document.createElement("input");
+    // J — siempre texto plano
+    const inputJ = document.createElement("textarea");
     inputJ.className = "cell-input";
-    inputJ.type      = "text";
     inputJ.value     = valJ;
+    inputJ.rows      = 1;
     inputJ.addEventListener("input", () => modifiedRows.add(i));
 
-    const inputK = document.createElement("input");
+    // K — fórmula o valor
+    const inputK = document.createElement("textarea");
     inputK.className = "cell-input";
-    inputK.type      = "text";
     inputK.value     = valK;
+    inputK.rows      = 1;
     inputK.addEventListener("input", () => modifiedRows.add(i));
 
     rowEl.appendChild(inputJ);
