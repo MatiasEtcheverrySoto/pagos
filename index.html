@@ -23,9 +23,7 @@
   --green: #22c55e;
 }
 
-html, body {
-  height: 100%;
-}
+html, body { height: 100%; }
 
 body {
   background: var(--bg);
@@ -34,7 +32,7 @@ body {
   height: 100dvh;
   display: flex;
   flex-direction: column;
-  overflow: hidden; /* no scroll en main */
+  overflow: hidden;
 }
 
 /* ── DATES ── */
@@ -51,11 +49,11 @@ body {
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 3px;
+  gap: 0;
   background: var(--surface);
   border: 1px solid var(--border);
   border-radius: 10px;
-  padding: 8px 10px;
+  padding: 9px 10px;  /* igual arriba y abajo → equidistante */
   position: relative;
   text-align: center;
 }
@@ -65,12 +63,14 @@ body {
   font-size: 12px;
   color: var(--text2);
   font-weight: 400;
+  line-height: 1.4;
 }
 
 .date-display {
   font-family: 'Geist Mono', monospace;
   font-size: 13px;
   color: var(--text);
+  line-height: 1.4;
 }
 
 .date-picker-overlay {
@@ -85,7 +85,7 @@ body {
 
 /* ── AMOUNT BLOCK ── */
 .amount-block {
-  padding: 10px 16px 0;
+  padding: 12px 16px 12px; /* igual arriba y abajo */
   flex-shrink: 0;
 }
 
@@ -110,8 +110,8 @@ body {
   flex-shrink: 0;
   transition: color 0.2s;
   padding-bottom: 2px;
-  margin-left: 10px; /* un poco más a la derecha */
-  margin-right: 2px;
+  margin-left: 20px; /* 20px a la derecha */
+  margin-right: 0;
 }
 .amount-sign.neg { color: var(--red); }
 .amount-sign.pos { color: var(--green); }
@@ -129,6 +129,7 @@ body {
   caret-color: var(--text2);
   letter-spacing: -1px;
   min-width: 0;
+  margin-left: 40px; /* 40px a la derecha */
 }
 .amount-input::placeholder { color: var(--text3); }
 
@@ -141,7 +142,8 @@ body {
 }
 
 .toggle-btn {
-  width: 78px;
+  width: 25vw; /* 1/4 del ancho de pantalla */
+  max-width: 100px;
   border-radius: 8px;
   padding: 6px 0;
   font-family: 'Geist', sans-serif;
@@ -163,32 +165,16 @@ body {
 .toggle-btn.ars     { color: #fb923c; border-color: rgba(251,146,60,0.35);  background: rgba(251,146,60,0.09); }
 .toggle-btn.usd     { color: #4ade80; border-color: rgba(74,222,128,0.35);  background: rgba(74,222,128,0.09); }
 
-/* ── BADGE SOLO CAJA ── */
-.solo-caja-badge {
-  font-family: 'Geist Mono', monospace;
-  font-size: 9px;
-  letter-spacing: 0.1em;
-  color: var(--text3);
-  text-transform: uppercase;
-  margin: 6px 16px 0;
-  opacity: 0;
-  max-height: 0;
-  overflow: hidden;
-  transition: all 0.3s ease;
-  flex-shrink: 0;
-}
-.solo-caja-badge.show { opacity: 1; max-height: 16px; }
-
 /* ── SEARCH ── */
 .search-wrap {
-  padding: 10px 16px 0;
+  padding: 0 16px 12px; /* igual que el padding-bottom del amount-block */
   position: relative;
   flex-shrink: 0;
 }
 
 .search-icon {
   position: absolute;
-  left: 28px; top: 21px;
+  left: 28px; top: 11px;
   width: 15px; height: 15px;
   stroke: var(--text3);
 }
@@ -211,7 +197,7 @@ body {
 .categories-wrap {
   flex: 1;
   overflow-y: auto;
-  padding: 8px 16px 0;
+  padding: 0 16px 0;
   min-height: 0;
 }
 
@@ -281,30 +267,32 @@ body {
   background: var(--bg);
   display: flex;
   flex-direction: column;
-  padding: 36px 24px 32px;
+  justify-content: center; /* centrado vertical */
+  padding: 32px 24px;
+  gap: 0;
   opacity: 0;
   pointer-events: none;
   transition: opacity 0.2s;
   z-index: 100;
 }
 .overlay.show { opacity: 1; pointer-events: all; }
-.spacer { flex: 1; min-height: 0; }
 
-/* Echo fecha fields en overlay */
+/* Echo fecha */
 .echo-dates {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 12px;
+  flex-shrink: 0;
 }
 .echo-date-block {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 5px;
+  gap: 4px;
   background: var(--surface);
   border: 1px solid var(--border);
   border-radius: 10px;
-  padding: 12px;
+  padding: 10px;
 }
 .echo-label {
   font-family: 'Geist', sans-serif;
@@ -313,16 +301,27 @@ body {
 }
 .echo-date-val {
   font-family: 'Geist Mono', monospace;
-  font-size: 16px;
+  font-size: 15px;
   color: var(--text);
 }
 
 /* Echo monto */
+.echo-monto-section {
+  margin-top: 24px;
+  flex-shrink: 0;
+}
+.echo-section-label {
+  font-family: 'Geist Mono', monospace;
+  font-size: 11px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--text2);
+  margin-bottom: 6px;
+}
 .echo-monto-row {
   display: flex;
   align-items: baseline;
   gap: 8px;
-  margin-top: 28px;
 }
 .echo-sign {
   font-family: 'Geist Mono', monospace;
@@ -334,7 +333,7 @@ body {
 .echo-sign.pos { color: var(--green); }
 .echo-num {
   font-family: 'Geist Mono', monospace;
-  font-size: 52px;
+  font-size: 50px;
   font-weight: 300;
   letter-spacing: -2px;
   color: var(--text);
@@ -342,23 +341,24 @@ body {
 }
 .echo-curr {
   font-family: 'Geist Mono', monospace;
-  font-size: 52px;
+  font-size: 50px;
   font-weight: 300;
   color: var(--text);
   line-height: 1;
 }
 
-/* Echo por + categoria */
-.echo-bottom-row {
+/* Echo Por + Categoría (vertical) */
+.echo-detail-section {
+  margin-top: 24px;
   display: flex;
-  gap: 16px;
-  margin-top: 28px;
-  align-items: flex-start;
+  flex-direction: column;
+  gap: 12px;
+  flex-shrink: 0;
 }
 .echo-block {
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 6px;
 }
 .echo-block-label {
   font-family: 'Geist', sans-serif;
@@ -372,13 +372,17 @@ body {
   background: var(--surface2);
   border: 1px solid var(--text3);
   border-radius: 10px;
-  padding: 12px 18px;
+  padding: 10px 16px;
+  align-self: flex-start;
 }
-.echo-pill-emoji { font-size: 22px; }
-.echo-pill-name  { font-size: 16px; color: var(--text); font-weight: 500; }
+.echo-pill-emoji { font-size: 20px; }
+.echo-pill-name  { font-size: 15px; color: var(--text); font-weight: 500; }
 
 /* ── PROGRESS BAR ── */
-.progress-section { width: 100%; flex-shrink: 0; }
+.progress-section {
+  margin-top: 28px;
+  flex-shrink: 0;
+}
 
 .progress-label {
   font-family: 'Geist Mono', monospace;
@@ -405,7 +409,6 @@ body {
   border-radius: 4px;
   position: relative;
   overflow: hidden;
-  transition: width 0.8s cubic-bezier(0.2,0.8,0.2,1);
 }
 
 /* Diagonales moviéndose a la izquierda */
@@ -414,10 +417,8 @@ body {
   inset: 0;
   background-image: repeating-linear-gradient(
     -55deg,
-    transparent 0px,
-    transparent 6px,
-    rgba(0,0,0,0.2) 6px,
-    rgba(0,0,0,0.2) 12px
+    transparent 0px, transparent 6px,
+    rgba(0,0,0,0.2) 6px, rgba(0,0,0,0.2) 12px
   );
   background-size: 17px 100%;
   animation: move-left 0.5s linear infinite;
@@ -461,7 +462,6 @@ body {
 /* ── ERROR OVERLAY ── */
 #ov-error {
   align-items: center;
-  justify-content: center;
   text-align: center;
   gap: 12px;
 }
@@ -475,17 +475,17 @@ body {
 </head>
 <body>
 
-<!-- Fechas -->
+<!-- Fechas: Caja primero, Resultado segundo -->
 <div class="dates-row">
-  <div class="date-field">
-    <span class="date-label">Resultado</span>
-    <span class="date-display" id="display-rdo"></span>
-    <input class="date-picker-overlay" type="date" id="fecha-resultado">
-  </div>
   <div class="date-field">
     <span class="date-label">Caja</span>
     <span class="date-display" id="display-caja"></span>
-    <input class="date-picker-overlay" type="date" id="fecha-caja">
+    <input class="date-picker-overlay" type="date" id="fecha-caja" autocomplete="off">
+  </div>
+  <div class="date-field">
+    <span class="date-label">Resultado</span>
+    <span class="date-display" id="display-rdo"></span>
+    <input class="date-picker-overlay" type="date" id="fecha-resultado" autocomplete="off">
   </div>
 </div>
 
@@ -494,7 +494,18 @@ body {
   <div class="amount-row">
     <div class="amount-left">
       <span class="amount-sign neg" id="amount-sign">−</span>
-      <input class="amount-input" id="monto-input" type="text" inputmode="decimal" placeholder="0,00">
+      <input
+        class="amount-input"
+        id="monto-input"
+        type="text"
+        inputmode="decimal"
+        placeholder="0,00"
+        autocomplete="off"
+        autocorrect="off"
+        autocapitalize="off"
+        spellcheck="false"
+        data-form-type="other"
+      >
     </div>
     <div class="toggles-col">
       <button class="toggle-btn gasto"   id="btn-tipo">Gasto</button>
@@ -504,15 +515,23 @@ body {
   </div>
 </div>
 
-<span class="solo-caja-badge" id="solo-caja-badge">⚠ Solo se registra en Caja</span>
-
 <!-- Buscador -->
 <div class="search-wrap">
   <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
     <circle cx="11" cy="11" r="8"></circle>
     <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
   </svg>
-  <input class="search-input" id="search-input" type="text" placeholder="Buscar categoría..." autocomplete="off" autocorrect="off" spellcheck="false">
+  <input
+    class="search-input"
+    id="search-input"
+    type="search"
+    placeholder="Buscar categoría..."
+    autocomplete="off"
+    autocorrect="off"
+    autocapitalize="off"
+    spellcheck="false"
+    data-form-type="other"
+  >
 </div>
 
 <!-- Categorías -->
@@ -520,7 +539,7 @@ body {
   <div class="cat-grid" id="cat-grid"></div>
 </div>
 
-<!-- Botón registrar -->
+<!-- Confirmar -->
 <div class="confirm-wrap">
   <button class="btn-confirm" id="btn-confirm" disabled>Registrar</button>
 </div>
@@ -528,27 +547,28 @@ body {
 <!-- ── OVERLAY CARGA ── -->
 <div class="overlay" id="ov-loading">
 
-  <!-- Fechas echo -->
   <div class="echo-dates">
-    <div class="echo-date-block">
-      <span class="echo-label">Resultado</span>
-      <span class="echo-date-val" id="echo-rdo"></span>
-    </div>
     <div class="echo-date-block">
       <span class="echo-label">Caja</span>
       <span class="echo-date-val" id="echo-caja"></span>
     </div>
+    <div class="echo-date-block">
+      <span class="echo-label">Resultado</span>
+      <span class="echo-date-val" id="echo-rdo"></span>
+    </div>
   </div>
 
-  <!-- Monto echo -->
-  <div class="echo-monto-row">
-    <span class="echo-sign neg" id="echo-sign"></span>
-    <span class="echo-num" id="echo-monto"></span>
-    <span class="echo-curr" id="echo-currency"></span>
+  <div class="echo-monto-section">
+    <div class="echo-section-label">Monto</div>
+    <div class="echo-monto-row">
+      <span class="echo-sign neg" id="echo-sign"></span>
+      <span class="echo-num"  id="echo-monto"></span>
+      <span class="echo-curr" id="echo-currency"></span>
+    </div>
   </div>
 
-  <!-- Por + Categoría -->
-  <div class="echo-bottom-row">
+  <!-- Por → Categoría, apilados verticalmente -->
+  <div class="echo-detail-section">
     <div class="echo-block">
       <span class="echo-block-label">Por</span>
       <div class="echo-pill">
@@ -565,9 +585,6 @@ body {
     </div>
   </div>
 
-  <div class="spacer"></div>
-
-  <!-- Barra + botón -->
   <div class="progress-section">
     <div class="progress-label">Registrando...</div>
     <div class="progress-wrapper">
@@ -614,7 +631,6 @@ const CATS_INGRESO = [
   ["📊","Inversión"],["🏠","Bienes"]
 ];
 
-// ── URL params ──
 const p          = new URLSearchParams(window.location.search);
 const textoParam = decodeURIComponent(p.get("texto") || "");
 const appParam   = (p.get("app") || "").toLowerCase();
@@ -630,13 +646,12 @@ function parsearNotificacion(texto) {
 
 function todayStr() { return new Date().toISOString().split("T")[0]; }
 
-function formatDateForSheet(d) {
+function formatDate(d) {
   if (!d) return "";
   const [y,mo,dd] = d.split("-");
   return `${dd}/${mo}/${y}`;
 }
 
-// ── Estado ──
 let isGasto   = signoParam !== "positivo";
 let isCredito = false;
 let isUSD     = false;
@@ -646,15 +661,14 @@ let selectedEmoji = "";
 const parsed = parsearNotificacion(textoParam);
 if (parsed.currency === "USD") isUSD = true;
 
-// ── Fechas ──
 const inputCaja   = document.getElementById("fecha-caja");
 const inputRdo    = document.getElementById("fecha-resultado");
 const displayCaja = document.getElementById("display-caja");
 const displayRdo  = document.getElementById("display-rdo");
 
 function updateDates() {
-  displayCaja.textContent = formatDateForSheet(inputCaja.value);
-  displayRdo.textContent  = formatDateForSheet(inputRdo.value);
+  displayCaja.textContent = formatDate(inputCaja.value);
+  displayRdo.textContent  = formatDate(inputRdo.value);
 }
 inputCaja.addEventListener("change", updateDates);
 inputRdo.addEventListener("change",  updateDates);
@@ -664,12 +678,10 @@ inputCaja.value = todayStr();
 inputRdo.value  = todayStr();
 updateDates();
 
-// ── Toggles ──
 const btnTipo    = document.getElementById("btn-tipo");
 const btnTarjeta = document.getElementById("btn-tarjeta");
 const btnMoneda  = document.getElementById("btn-moneda");
 const signEl     = document.getElementById("amount-sign");
-const badge      = document.getElementById("solo-caja-badge");
 
 function renderToggles() {
   btnTipo.textContent    = isGasto ? "Gasto" : "Ingreso";
@@ -685,7 +697,6 @@ function renderToggles() {
 btnTipo.addEventListener("click", () => {
   isGasto = !isGasto;
   selected = null; selectedEmoji = "";
-  badge.classList.remove("show");
   document.getElementById("btn-confirm").disabled = true;
   document.getElementById("search-input").value = "";
   buildCats(); renderToggles();
@@ -693,7 +704,6 @@ btnTipo.addEventListener("click", () => {
 btnTarjeta.addEventListener("click", () => { isCredito = !isCredito; renderToggles(); });
 btnMoneda.addEventListener("click",  () => { isUSD = !isUSD; renderToggles(); });
 
-// ── Categorías ──
 function buildCats() {
   const grid = document.getElementById("cat-grid");
   grid.innerHTML = "";
@@ -715,7 +725,6 @@ function buildCats() {
       btn.classList.add("selected");
       selected = name; selectedEmoji = emoji;
       document.getElementById("btn-confirm").disabled = false;
-      badge.classList.toggle("show", SOLO_CAJA.includes(name));
       btn.scrollIntoView({ behavior: "smooth", block: "nearest" });
     });
     grid.appendChild(btn);
@@ -725,7 +734,6 @@ function buildCats() {
 buildCats();
 renderToggles();
 
-// ── Search ──
 document.getElementById("search-input").addEventListener("input", e => {
   const q = e.target.value.toLowerCase().trim();
   document.querySelectorAll(".cat-item").forEach(btn => {
@@ -741,14 +749,13 @@ document.getElementById("search-input").addEventListener("input", e => {
   });
 });
 
-// ── Progress bar ──
 let stepsTimeout, creepInterval, closeTimer;
 
 function iniciarBarra() {
   const bar = document.getElementById("progress-bar");
   bar.style.transition = "none";
   bar.style.width = "0%";
-  void bar.offsetWidth; // force reflow
+  void bar.offsetWidth;
   setTimeout(() => {
     bar.style.transition = "width 0.9s cubic-bezier(0.2,0.8,0.2,1)";
     bar.style.width = "45%";
@@ -772,38 +779,31 @@ function finalizarBarra() {
   const bar = document.getElementById("progress-bar");
   bar.style.transition = "width 0.2s ease-out";
   bar.style.width = "100%";
-  // Cerrar si no se tocó "Registrar Otro" en 2.5s
   closeTimer = setTimeout(() => window.close(), 2500);
 }
 
-// ── Confirmar ──
 document.getElementById("btn-confirm").addEventListener("click", async () => {
   if (!selected) return;
   const montoRaw = document.getElementById("monto-input").value.trim();
   if (!montoRaw) return;
 
-  const fechaCajaSheet = formatDateForSheet(inputCaja.value);
-  const fechaRdoSheet  = formatDateForSheet(inputRdo.value);
+  const fechaCajaSheet = formatDate(inputCaja.value);
+  const fechaRdoSheet  = formatDate(inputRdo.value);
   const esSoloCaja     = SOLO_CAJA.includes(selected);
 
-  // Echo: fechas
-  document.getElementById("echo-rdo").textContent  = fechaRdoSheet;
   document.getElementById("echo-caja").textContent = fechaCajaSheet;
+  document.getElementById("echo-rdo").textContent  = fechaRdoSheet;
 
-  // Echo: monto
   const echoSign = document.getElementById("echo-sign");
   echoSign.textContent = isGasto ? "−" : "+";
   echoSign.className   = "echo-sign " + (isGasto ? "neg" : "pos");
   document.getElementById("echo-monto").textContent    = montoRaw;
   document.getElementById("echo-currency").textContent = isUSD ? "USD" : "ARS";
 
-  // Echo: por (débito/crédito)
   document.getElementById("echo-tarjeta-emoji").textContent = isCredito ? "💳" : "🏦";
   document.getElementById("echo-tarjeta-name").textContent  = isCredito ? "Crédito" : "Débito";
-
-  // Echo: categoría
-  document.getElementById("echo-emoji").textContent    = selectedEmoji;
-  document.getElementById("echo-cat-name").textContent = selected;
+  document.getElementById("echo-emoji").textContent         = selectedEmoji;
+  document.getElementById("echo-cat-name").textContent      = selected;
 
   showOverlay("ov-loading");
   iniciarBarra();
@@ -837,20 +837,13 @@ document.getElementById("btn-confirm").addEventListener("click", async () => {
   }
 });
 
-// ── Registrar Otro ──
 document.getElementById("btn-otro").addEventListener("click", () => {
   if (closeTimer) clearTimeout(closeTimer);
-  const url = window.location.href.split("?")[0];
-  window.open(url, "_blank");
+  window.open(window.location.href.split("?")[0], "_blank");
 });
 
-function showOverlay(id) {
-  hideAll();
-  document.getElementById(id).classList.add("show");
-}
-function hideAll() {
-  document.querySelectorAll(".overlay").forEach(o => o.classList.remove("show"));
-}
+function showOverlay(id) { hideAll(); document.getElementById(id).classList.add("show"); }
+function hideAll() { document.querySelectorAll(".overlay").forEach(o => o.classList.remove("show")); }
 </script>
 </body>
 </html>
