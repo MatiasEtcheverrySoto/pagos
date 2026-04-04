@@ -150,7 +150,6 @@ body {
 
 .toggle-btn {
   width: 25vw;
-  max-width: 100px;
   border-radius: 8px;
   padding: 6px 0;
   font-family: 'Geist', sans-serif;
@@ -310,7 +309,11 @@ body {
   transition: opacity 0.2s;
 }
 .echo-date-block.hidden-date {
-  visibility: hidden; /* mantiene el espacio pero no se ve */
+  display: none;
+}
+/* Cuando ambas fechas están ocultas, colapsar el grid */
+.echo-dates:has(.echo-date-block.hidden-date:nth-child(1)):has(.echo-date-block.hidden-date:nth-child(2)) {
+  display: none;
 }
 .echo-label {
   font-family: 'Geist', sans-serif;
@@ -759,7 +762,7 @@ document.getElementById("search-input").addEventListener("input", e => {
 });
 
 // ── Barra de progreso ──
-let stepsTimeout, creepInterval;
+let stepsTimeout, creepInterval, closeTimer;
 
 function iniciarBarra() {
   const bar = document.getElementById("progress-bar");
@@ -789,7 +792,8 @@ function finalizarBarra() {
   const bar = document.getElementById("progress-bar");
   bar.style.transition = "width 0.2s ease-out";
   bar.style.width = "100%";
-  // Sin auto-cierre — el usuario cierra o toca "Registrar Otro"
+  // Cierre automático rápido — cancelable con "Registrar Otro"
+  closeTimer = setTimeout(() => window.close(), 500);
 }
 
 // ── Confirmar ──
@@ -797,6 +801,9 @@ document.getElementById("btn-confirm").addEventListener("click", async () => {
   if (!selected) return;
   const montoRaw = document.getElementById("monto-input").value.trim();
   if (!montoRaw) return;
+  // Validar que sea un número válido
+  const montoNum = parseFloat(montoRaw.replace(/\./g, "").replace(",", "."));
+  if (isNaN(montoNum) || montoNum <= 0) return;
 
   const fechaCajaSheet = formatDate(inputCaja.value);
   const fechaRdoSheet  = formatDate(inputRdo.value);
@@ -856,8 +863,9 @@ document.getElementById("btn-confirm").addEventListener("click", async () => {
   }
 });
 
-// ── Registrar Otro: abre nueva pestaña ──
+// ── Registrar Otro: cancela cierre y abre nueva pestaña ──
 document.getElementById("btn-otro").addEventListener("click", () => {
+  if (closeTimer) clearTimeout(closeTimer);
   window.open(window.location.href.split("?")[0], "_blank");
 });
 
