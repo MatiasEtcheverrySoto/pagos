@@ -21,6 +21,8 @@
   --text3: #444440;
   --red: #e05c4b;
   --green: #22c55e;
+  --blue: #60a5fa;
+  --yellow: #fbbf24;
 }
 
 body {
@@ -82,6 +84,7 @@ body {
   color-scheme: dark;
 }
 
+/* ── AMOUNT BLOCK ── */
 .amount-block { padding: 20px 20px 0; }
 
 .amount-row {
@@ -111,6 +114,17 @@ body {
 .amount-sign.neg { color: var(--red); }
 .amount-sign.pos { color: var(--green); }
 
+.amount-currency {
+  font-family: 'Geist Mono', monospace;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text3);
+  flex-shrink: 0;
+  align-self: flex-end;
+  padding-bottom: 6px;
+  letter-spacing: 0.05em;
+}
+
 .amount-input {
   font-family: 'Geist Mono', monospace;
   font-size: 40px;
@@ -125,28 +139,44 @@ body {
   letter-spacing: -1px;
   min-width: 0;
 }
-
 .amount-input::placeholder { color: var(--text3); }
 
-.toggle-btn {
+/* ── TOGGLE BUTTONS COLUMN ── */
+.toggles-col {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
   flex-shrink: 0;
+}
+
+.toggle-btn {
   background: var(--surface);
   border: 1px solid var(--border);
   border-radius: 8px;
-  padding: 8px 14px;
+  padding: 7px 12px;
   font-family: 'Geist', sans-serif;
-  font-size: 13px;
+  font-size: 12px;
   font-weight: 500;
   cursor: pointer;
   transition: all 0.2s;
   color: var(--text2);
   white-space: nowrap;
+  text-align: center;
 }
 
-.toggle-btn.gasto  { color: var(--red); border-color: rgba(224,92,75,0.3); background: rgba(224,92,75,0.08); }
-.toggle-btn.ingreso{ color: var(--green); border-color: rgba(34,197,94,0.3); background: rgba(34,197,94,0.08); }
+/* Gasto/Ingreso */
+.toggle-btn.gasto   { color: var(--red);   border-color: rgba(224,92,75,0.3);  background: rgba(224,92,75,0.08); }
+.toggle-btn.ingreso { color: var(--green); border-color: rgba(34,197,94,0.3); background: rgba(34,197,94,0.08); }
 
-/* Badge solo-caja con transición suave */
+/* Débito/Crédito */
+.toggle-btn.debito  { color: var(--text2); border-color: var(--border); background: var(--surface); }
+.toggle-btn.credito { color: var(--blue);  border-color: rgba(96,165,250,0.3); background: rgba(96,165,250,0.08); }
+
+/* ARS/USD */
+.toggle-btn.ars { color: var(--text2); border-color: var(--border); background: var(--surface); }
+.toggle-btn.usd { color: var(--yellow); border-color: rgba(251,191,36,0.3); background: rgba(251,191,36,0.08); }
+
+/* ── BADGE SOLO CAJA ── */
 .solo-caja-badge {
   font-family: 'Geist Mono', monospace;
   font-size: 9px;
@@ -159,13 +189,11 @@ body {
   overflow: hidden;
   transition: all 0.3s ease;
 }
-.solo-caja-badge.show { 
-  opacity: 1; 
-  max-height: 20px;
-}
+.solo-caja-badge.show { opacity: 1; max-height: 20px; }
 
 .divider { height: 1px; background: var(--border); margin: 18px 20px 0; }
 
+/* ── SEARCH ── */
 .search-wrap { padding: 14px 20px 0; position: relative; }
 
 .search-icon {
@@ -191,6 +219,7 @@ body {
 }
 .search-input::placeholder { color: var(--text3); }
 
+/* ── CATEGORIES ── */
 .categories-wrap {
   flex: 1;
   overflow-y: auto;
@@ -237,6 +266,7 @@ body {
   margin: 4px 0;
 }
 
+/* ── CONFIRM ── */
 .confirm-wrap {
   padding: 14px 20px 32px;
   background: var(--bg);
@@ -260,7 +290,7 @@ body {
 .btn-confirm:active { opacity: 0.85; }
 .btn-confirm:disabled { opacity: 0.15; cursor: not-allowed; }
 
-/* OVERLAYS */
+/* ── OVERLAYS ── */
 .overlay {
   position: fixed;
   inset: 0;
@@ -294,20 +324,15 @@ body {
   overflow: hidden;
 }
 .progress-stripes {
-  position: absolute;
-  inset: 0;
+  position: absolute; inset: 0;
   background: repeating-linear-gradient(-55deg, transparent, transparent 6px, rgba(0,0,0,0.15) 6px, rgba(0,0,0,0.15) 12px);
 }
 .progress-shimmer {
-  position: absolute;
-  inset: 0;
+  position: absolute; inset: 0;
   background: linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.3) 50%, transparent 100%);
   animation: shimmer 1.5s infinite;
 }
-@keyframes shimmer {
-  0% { transform: translateX(-100%); }
-  100% { transform: translateX(100%); }
-}
+@keyframes shimmer { 0%{transform:translateX(-100%)} 100%{transform:translateX(100%)} }
 
 #ov-error { align-items: center; justify-content: center; text-align: center; gap: 12px; }
 .error-icon { font-size: 36px; }
@@ -337,9 +362,14 @@ body {
   <div class="amount-row">
     <div class="amount-left">
       <span class="amount-sign neg" id="amount-sign">−</span>
+      <span class="amount-currency" id="amount-currency">$</span>
       <input class="amount-input" id="monto-input" type="text" inputmode="decimal" placeholder="0,00">
     </div>
-    <button class="toggle-btn gasto" id="toggle-btn">Gasto</button>
+    <div class="toggles-col">
+      <button class="toggle-btn gasto"   id="btn-tipo">Gasto</button>
+      <button class="toggle-btn debito"  id="btn-tarjeta">Débito</button>
+      <button class="toggle-btn ars"     id="btn-moneda">ARS</button>
+    </div>
   </div>
 </div>
 
@@ -362,42 +392,43 @@ body {
   <button class="btn-confirm" id="btn-confirm" disabled>Registrar</button>
 </div>
 
+<!-- Overlay carga -->
 <div class="overlay" id="ov-loading">
   <div class="spacer"></div>
   <div class="echo-container">
-    <div class="dates-row" style="padding: 0; gap: 16px;">
-      <div style="display: flex; flex-direction: column; gap: 8px;">
-        <span class="date-label" style="font-size: 13px; color: var(--text2);">Fecha Caja</span>
-        <div class="date-field" style="padding: 16px; align-items: center; justify-content: center;">
-          <span class="date-input" id="echo-caja" style="font-size: 20px; text-align: center; cursor: default;"></span>
+    <div class="dates-row" style="padding:0;gap:16px;">
+      <div style="display:flex;flex-direction:column;gap:8px;">
+        <span class="date-label" style="font-size:13px;color:var(--text2);">Fecha Caja</span>
+        <div class="date-field" style="padding:16px;align-items:center;justify-content:center;">
+          <span class="date-input" id="echo-caja" style="font-size:20px;text-align:center;cursor:default;"></span>
         </div>
       </div>
-      <div style="display: flex; flex-direction: column; gap: 8px;">
-        <span class="date-label" style="font-size: 13px; color: var(--text2);">Fecha Resultado</span>
-        <div class="date-field" style="padding: 16px; align-items: center; justify-content: center;">
-          <span class="date-input" id="echo-rdo" style="font-size: 20px; text-align: center; cursor: default;"></span>
+      <div style="display:flex;flex-direction:column;gap:8px;">
+        <span class="date-label" style="font-size:13px;color:var(--text2);">Fecha Resultado</span>
+        <div class="date-field" style="padding:16px;align-items:center;justify-content:center;">
+          <span class="date-input" id="echo-rdo" style="font-size:20px;text-align:center;cursor:default;"></span>
         </div>
       </div>
     </div>
-    <div class="amount-block" style="padding: 0; margin-top: 36px;">
-      <span class="date-label" style="font-size: 13px; display: block; margin-bottom: 10px; color: var(--text2);">Monto</span>
+    <div class="amount-block" style="padding:0;margin-top:36px;">
+      <span class="date-label" style="font-size:13px;display:block;margin-bottom:10px;color:var(--text2);">Monto</span>
       <div class="amount-row">
         <div class="amount-left">
-          <span class="amount-sign" id="echo-sign" style="font-size: 48px;"></span>
-          <span class="amount-input" id="echo-monto" style="font-size: 58px; display: block;"></span>
+          <span class="amount-sign" id="echo-sign" style="font-size:48px;"></span>
+          <span class="amount-input" id="echo-monto" style="font-size:58px;display:block;"></span>
         </div>
       </div>
     </div>
-    <div style="padding: 0; margin-top: 36px;">
-      <span class="date-label" style="font-size: 13px; display: block; margin-bottom: 10px; color: var(--text2);">Categoría</span>
-      <div class="cat-item selected" style="cursor: default; padding: 18px 24px; width: fit-content; gap: 12px;">
-        <span class="cat-emoji" id="echo-emoji" style="font-size: 28px;"></span>
-        <span class="cat-name" id="echo-cat-name" style="font-size: 20px;"></span>
+    <div style="padding:0;margin-top:36px;">
+      <span class="date-label" style="font-size:13px;display:block;margin-bottom:10px;color:var(--text2);">Categoría</span>
+      <div class="cat-item selected" style="cursor:default;padding:18px 24px;width:fit-content;gap:12px;">
+        <span class="cat-emoji" id="echo-emoji" style="font-size:28px;"></span>
+        <span class="cat-name" id="echo-cat-name" style="font-size:20px;"></span>
       </div>
     </div>
   </div>
   <div class="spacer"></div>
-  <div style="width: 100%;">
+  <div style="width:100%;">
     <div class="status-text">Cargando...</div>
     <div class="progress-wrapper">
       <div class="progress-bar" id="progress-bar">
@@ -408,10 +439,11 @@ body {
   </div>
 </div>
 
+<!-- Overlay error -->
 <div class="overlay" id="ov-error">
   <span class="error-icon">✕</span>
   <span class="error-title">Error</span>
-  <span style="font-family:'Geist Mono', monospace; font-size:12px; color:var(--text2);">No se pudo registrar</span>
+  <span style="font-family:'Geist Mono',monospace;font-size:12px;color:var(--text2);">No se pudo registrar</span>
   <button class="cancel-btn" style="margin-top:16px" onclick="hideAll()">Volver</button>
 </div>
 
@@ -428,7 +460,7 @@ const CATS_GASTO = [
   ["🎓","Facultad"],["📚","Educación"],["🅿️","Estacionamiento"],["📡","Datos"],
   ["✂️","Peluquería"],["💸","Propinas"],["🎲","Apuesta y Juego"],["🛡️","Seguro"],
   ["🏛️","Impuestos"],["❓","Desconocido"],["📦","Otros"],["⏳","A confirmar"],
-  [SEP, SEP],
+  [SEP,SEP],
   ["📊","Inversión"],["🏠","Bienes"]
 ];
 
@@ -436,18 +468,25 @@ const CATS_INGRESO = [
   ["💼","Sueldo Lucom"],["💰","Comisión Lucom"],["🎓","Clases"],["🏷️","Venta"],
   ["🎄","Aguinaldo Lucom"],["📈","Rendimientos"],["🎁","Cumples y Regalos"],
   ["🎲","Apuesta y Juego"],["❓","Desconocido"],["📦","Otros"],["⏳","A confirmar"],
-  [SEP, SEP],
+  [SEP,SEP],
   ["📊","Inversión"],["🏠","Bienes"]
 ];
 
-const p = new URLSearchParams(window.location.search);
+// ── Params ──
+const p          = new URLSearchParams(window.location.search);
 const textoParam = decodeURIComponent(p.get("texto") || "");
 const appParam   = (p.get("app") || "").toLowerCase();
 const signoParam = p.get("signo") || "negativo";
 
-function extraerMonto(texto) {
-  const match = texto.match(/\$\s*([\d.,]+)/);
-  return match ? match[1] : "";
+// ── Extraer monto y detectar moneda ──
+function parsearNotificacion(texto) {
+  // ARS: $ 12,00
+  let match = texto.match(/\$\s*([\d.,]+)/);
+  if (match) return { amount: match[1], currency: "ARS" };
+  // USD: USD 12,00
+  match = texto.match(/USD\s*([\d.,]+)/i);
+  if (match) return { amount: match[1], currency: "USD" };
+  return { amount: "", currency: "ARS" };
 }
 
 function todayStr() { return new Date().toISOString().split("T")[0]; }
@@ -458,47 +497,73 @@ function formatDateForSheet(dateStr) {
   return `${d}/${m}/${y}`;
 }
 
-let isGasto  = signoParam !== "positivo";
-let selected = null;
+// ── Estado ──
+let isGasto   = signoParam !== "positivo";
+let isCredito = false;
+let isUSD     = false;
+let selected  = null;
 let selectedEmoji = "";
 
+const parsed = parsearNotificacion(textoParam);
+
+// Auto-detectar USD desde la notificación
+if (parsed.currency === "USD") isUSD = true;
+
+// ── Init UI ──
 const inputCaja = document.getElementById("fecha-caja");
-const inputRdo = document.getElementById("fecha-resultado");
+const inputRdo  = document.getElementById("fecha-resultado");
 const displayCaja = document.getElementById("display-caja");
-const displayRdo = document.getElementById("display-rdo");
+const displayRdo  = document.getElementById("display-rdo");
 
 function updateDateDisplays() {
   displayCaja.textContent = formatDateForSheet(inputCaja.value);
-  displayRdo.textContent = formatDateForSheet(inputRdo.value);
+  displayRdo.textContent  = formatDateForSheet(inputRdo.value);
 }
-
 inputCaja.addEventListener("change", updateDateDisplays);
-inputRdo.addEventListener("change", updateDateDisplays);
+inputRdo.addEventListener("change",  updateDateDisplays);
 
-document.getElementById("monto-input").value = extraerMonto(textoParam);
+document.getElementById("monto-input").value = parsed.amount;
 inputCaja.value = todayStr();
-inputRdo.value = todayStr();
+inputRdo.value  = todayStr();
 updateDateDisplays();
 
-const toggleBtn = document.getElementById("toggle-btn");
-const signEl    = document.getElementById("amount-sign");
-const badge     = document.getElementById("solo-caja-badge");
+// ── Toggles ──
+const btnTipo    = document.getElementById("btn-tipo");
+const btnTarjeta = document.getElementById("btn-tarjeta");
+const btnMoneda  = document.getElementById("btn-moneda");
+const signEl     = document.getElementById("amount-sign");
+const currEl     = document.getElementById("amount-currency");
+const badge      = document.getElementById("solo-caja-badge");
 
-function updateToggle() {
-  toggleBtn.textContent = isGasto ? "Gasto" : "Ingreso";
-  toggleBtn.className   = "toggle-btn " + (isGasto ? "gasto" : "ingreso");
-  signEl.textContent    = isGasto ? "−" : "+";
-  signEl.className      = "amount-sign " + (isGasto ? "neg" : "pos");
-  selected = null;
-  selectedEmoji = "";
+function renderToggles() {
+  // Tipo
+  btnTipo.textContent = isGasto ? "Gasto" : "Ingreso";
+  btnTipo.className   = "toggle-btn " + (isGasto ? "gasto" : "ingreso");
+  signEl.textContent  = isGasto ? "−" : "+";
+  signEl.className    = "amount-sign " + (isGasto ? "neg" : "pos");
+  // Tarjeta
+  btnTarjeta.textContent = isCredito ? "Crédito" : "Débito";
+  btnTarjeta.className   = "toggle-btn " + (isCredito ? "credito" : "debito");
+  // Moneda
+  btnMoneda.textContent = isUSD ? "USD" : "ARS";
+  btnMoneda.className   = "toggle-btn " + (isUSD ? "usd" : "ars");
+  currEl.textContent    = isUSD ? "USD" : "$";
+}
+
+btnTipo.addEventListener("click", () => {
+  isGasto = !isGasto;
+  selected = null; selectedEmoji = "";
   badge.classList.remove("show");
   document.getElementById("btn-confirm").disabled = true;
   document.getElementById("search-input").value = "";
   buildCats();
-}
+  renderToggles();
+});
 
-toggleBtn.addEventListener("click", () => { isGasto = !isGasto; updateToggle(); });
+btnTarjeta.addEventListener("click", () => { isCredito = !isCredito; renderToggles(); });
+btnMoneda.addEventListener("click",  () => { isUSD = !isUSD; renderToggles(); });
 
+// ── Categorías ──
 function buildCats() {
   const grid = document.getElementById("cat-grid");
   grid.innerHTML = "";
@@ -511,13 +576,11 @@ function buildCats() {
       grid.appendChild(sep);
       return;
     }
-
     const btn = document.createElement("button");
-    btn.className    = "cat-item";
-    btn.dataset.name = name.toLowerCase();
+    btn.className     = "cat-item";
+    btn.dataset.name  = name.toLowerCase();
     btn.dataset.emoji = emoji;
-    btn.innerHTML    = `<span class="cat-emoji">${emoji}</span><span class="cat-name">${name}</span>`;
-
+    btn.innerHTML     = `<span class="cat-emoji">${emoji}</span><span class="cat-name">${name}</span>`;
     btn.addEventListener("click", () => {
       document.querySelectorAll(".cat-item").forEach(b => b.classList.remove("selected"));
       btn.classList.add("selected");
@@ -527,45 +590,48 @@ function buildCats() {
       badge.classList.toggle("show", SOLO_CAJA.includes(name));
       btn.scrollIntoView({ behavior: "smooth", block: "nearest" });
     });
-
     grid.appendChild(btn);
   });
 }
 
 buildCats();
-updateToggle();
+renderToggles();
 
+// ── Search ──
 document.getElementById("search-input").addEventListener("input", e => {
   const q = e.target.value.toLowerCase().trim();
   document.querySelectorAll(".cat-item").forEach(btn => {
     btn.classList.toggle("hidden", q.length > 0 && !btn.dataset.name.includes(q));
   });
   document.querySelectorAll(".cat-separator").forEach(sep => {
-    const nextVisible = [...sep.parentElement.children].slice(
-      [...sep.parentElement.children].indexOf(sep) + 1
-    ).some(el => el.classList.contains("cat-item") && !el.classList.contains("hidden"));
+    const siblings = [...sep.parentElement.children];
+    const idx = siblings.indexOf(sep);
+    const nextVisible = siblings.slice(idx + 1).some(
+      el => el.classList.contains("cat-item") && !el.classList.contains("hidden")
+    );
     sep.style.display = q && !nextVisible ? "none" : "";
   });
 });
 
+// ── Confirm ──
 let stepsTimeout, creepInterval;
 
 document.getElementById("btn-confirm").addEventListener("click", async () => {
   if (!selected) return;
-  const monto = document.getElementById("monto-input").value.trim();
-  if (!monto) return;
+  const montoRaw = document.getElementById("monto-input").value.trim();
+  if (!montoRaw) return;
 
-  const montoFinal      = isGasto ? "-" + monto : monto;
-  const fechaCajaSheet  = formatDateForSheet(inputCaja.value);
-  const fechaRdoSheet   = formatDateForSheet(inputRdo.value);
-  const esSoloCaja      = SOLO_CAJA.includes(selected);
+  const fechaCajaSheet = formatDateForSheet(inputCaja.value);
+  const fechaRdoSheet  = formatDateForSheet(inputRdo.value);
+  const esSoloCaja     = SOLO_CAJA.includes(selected);
 
-  document.getElementById("echo-caja").textContent   = fechaCajaSheet;
-  document.getElementById("echo-rdo").textContent    = fechaRdoSheet;
+  // Echo overlay
+  document.getElementById("echo-caja").textContent    = fechaCajaSheet;
+  document.getElementById("echo-rdo").textContent     = fechaRdoSheet;
   const echoSign = document.getElementById("echo-sign");
   echoSign.textContent = isGasto ? "−" : "+";
   echoSign.className   = isGasto ? "amount-sign neg" : "amount-sign pos";
-  document.getElementById("echo-monto").textContent   = monto;
+  document.getElementById("echo-monto").textContent   = (isUSD ? "USD " : "$") + montoRaw;
   document.getElementById("echo-emoji").textContent   = selectedEmoji;
   document.getElementById("echo-cat-name").textContent = selected;
 
@@ -588,14 +654,17 @@ document.getElementById("btn-confirm").addEventListener("click", async () => {
       keepalive: true,
       headers: { "Content-Type": "text/plain" },
       body: JSON.stringify({
-        monto: montoFinal,
-        descripcion: textoParam,
-        app: appParam,
-        categoria: selected,
-        yaConSigno: true,
-        soloCaja: esSoloCaja,
+        descripcion:    textoParam,
+        app:            appParam,
+        categoria:      selected,
+        yaConSigno:     true,
+        soloCaja:       esSoloCaja,
+        esGasto:        isGasto,
+        esCredito:      isCredito,
+        esUSD:          isUSD,
+        montoRaw:       montoRaw,   // número sin signo, sea ARS o USD
         fechaResultado: fechaRdoSheet,
-        fechaCaja: fechaCajaSheet
+        fechaCaja:      fechaCajaSheet
       })
     });
 
@@ -615,12 +684,6 @@ document.getElementById("btn-confirm").addEventListener("click", async () => {
 
 function showOverlay(id) { hideAll(); document.getElementById(id).classList.add("show"); }
 function hideAll() { document.querySelectorAll(".overlay").forEach(o => o.classList.remove("show")); }
-
-document.addEventListener("click", () => {
-  if (document.documentElement.requestFullscreen) {
-    document.documentElement.requestFullscreen().catch(() => {});
-  }
-}, { once: true });
 </script>
 </body>
 </html>
