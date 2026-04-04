@@ -53,9 +53,16 @@ body {
   background: var(--surface);
   border: 1px solid var(--border);
   border-radius: 10px;
-  padding: 9px 10px;  /* igual arriba y abajo → equidistante */
+  padding: 9px 10px;
   position: relative;
   text-align: center;
+  transition: opacity 0.25s ease;
+}
+
+/* Fecha atenuada cuando no aplica */
+.date-field.dimmed {
+  opacity: 0.28;
+  pointer-events: none;
 }
 
 .date-label {
@@ -85,7 +92,7 @@ body {
 
 /* ── AMOUNT BLOCK ── */
 .amount-block {
-  padding: 12px 16px 12px; /* igual arriba y abajo */
+  padding: 12px 16px 12px;
   flex-shrink: 0;
 }
 
@@ -110,7 +117,7 @@ body {
   flex-shrink: 0;
   transition: color 0.2s;
   padding-bottom: 2px;
-  margin-left: 20px; /* 20px a la derecha */
+  margin-left: 20px;
   margin-right: 0;
 }
 .amount-sign.neg { color: var(--red); }
@@ -129,7 +136,7 @@ body {
   caret-color: var(--text2);
   letter-spacing: -1px;
   min-width: 0;
-  margin-left: 30px; /* 30px del signo */
+  margin-left: 15px; /* 15px del signo */
 }
 .amount-input::placeholder { color: var(--text3); }
 
@@ -142,7 +149,7 @@ body {
 }
 
 .toggle-btn {
-  width: 25vw; /* 1/4 del ancho de pantalla */
+  width: 25vw;
   max-width: 100px;
   border-radius: 8px;
   padding: 6px 0;
@@ -167,7 +174,7 @@ body {
 
 /* ── SEARCH ── */
 .search-wrap {
-  padding: 0 16px 12px; /* igual que el padding-bottom del amount-block */
+  padding: 0 16px 12px;
   position: relative;
   flex-shrink: 0;
 }
@@ -261,15 +268,13 @@ body {
 .btn-confirm:active { opacity: 0.85; }
 .btn-confirm:disabled { opacity: 0.15; cursor: not-allowed; }
 
-/* ── OVERLAYS ── */
+/* ── OVERLAY ── */
 .overlay {
   position: fixed; inset: 0;
   background: var(--bg);
   display: flex;
   flex-direction: column;
-  justify-content: center;
-  padding: 32px 24px 140px; /* espacio abajo para la barra */
-  gap: 0;
+  padding: 32px 24px 0;
   opacity: 0;
   pointer-events: none;
   transition: opacity 0.2s;
@@ -277,12 +282,21 @@ body {
 }
 .overlay.show { opacity: 1; pointer-events: all; }
 
-/* Echo fecha */
+/* Contenido centrado verticalmente */
+.echo-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  min-height: 0;
+  padding-bottom: 16px;
+}
+
+/* Echo fechas */
 .echo-dates {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 12px;
-  flex-shrink: 0;
 }
 .echo-date-block {
   display: flex;
@@ -293,6 +307,10 @@ body {
   border: 1px solid var(--border);
   border-radius: 10px;
   padding: 10px;
+  transition: opacity 0.2s;
+}
+.echo-date-block.hidden-date {
+  visibility: hidden; /* mantiene el espacio pero no se ve */
 }
 .echo-label {
   font-family: 'Geist', sans-serif;
@@ -306,15 +324,10 @@ body {
 }
 
 /* Echo monto */
-.echo-monto-section {
-  margin-top: 24px;
-  flex-shrink: 0;
-}
+.echo-monto-section { margin-top: 22px; }
 .echo-section-label {
-  font-family: 'Geist Mono', monospace;
-  font-size: 11px;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
+  font-family: 'Geist', sans-serif;
+  font-size: 12px;
   color: var(--text2);
   margin-bottom: 6px;
 }
@@ -347,19 +360,14 @@ body {
   line-height: 1;
 }
 
-/* Echo Por + Categoría (vertical) */
+/* Echo Por + Categoría vertical */
 .echo-detail-section {
-  margin-top: 24px;
+  margin-top: 22px;
   display: flex;
   flex-direction: column;
   gap: 12px;
-  flex-shrink: 0;
 }
-.echo-block {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-}
+.echo-block { display: flex; flex-direction: column; gap: 6px; }
 .echo-block-label {
   font-family: 'Geist', sans-serif;
   font-size: 12px;
@@ -378,19 +386,15 @@ body {
 .echo-pill-emoji { font-size: 20px; }
 .echo-pill-name  { font-size: 15px; color: var(--text); font-weight: 500; }
 
-/* ── PROGRESS BAR — fijada al fondo ── */
+/* ── PROGRESS — siempre al fondo ── */
 .progress-section {
-  position: absolute;
-  bottom: 32px;
-  left: 24px;
-  right: 24px;
+  flex-shrink: 0;
+  padding: 0 0 32px;
 }
 
 .progress-label {
-  font-family: 'Geist Mono', monospace;
-  font-size: 11px;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
+  font-family: 'Geist', sans-serif;
+  font-size: 12px;
   color: var(--text2);
   margin-bottom: 10px;
 }
@@ -413,7 +417,6 @@ body {
   overflow: hidden;
 }
 
-/* Diagonales moviéndose a la izquierda */
 .progress-stripes {
   position: absolute;
   inset: 0;
@@ -430,7 +433,6 @@ body {
   to   { background-position: -17px 0; }
 }
 
-/* Destello yendo a la derecha */
 .progress-shimmer {
   position: absolute;
   top: 0; bottom: 0;
@@ -444,7 +446,6 @@ body {
   100% { left: 140%; }
 }
 
-/* ── BOTÓN REGISTRAR OTRO ── */
 .btn-otro {
   width: 100%;
   margin-top: 12px;
@@ -464,6 +465,7 @@ body {
 /* ── ERROR OVERLAY ── */
 #ov-error {
   align-items: center;
+  justify-content: center;
   text-align: center;
   gap: 12px;
 }
@@ -479,12 +481,12 @@ body {
 
 <!-- Fechas: Caja primero, Resultado segundo -->
 <div class="dates-row">
-  <div class="date-field">
+  <div class="date-field" id="field-caja">
     <span class="date-label">Caja</span>
     <span class="date-display" id="display-caja"></span>
     <input class="date-picker-overlay" type="date" id="fecha-caja" autocomplete="off">
   </div>
-  <div class="date-field">
+  <div class="date-field" id="field-rdo">
     <span class="date-label">Resultado</span>
     <span class="date-display" id="display-rdo"></span>
     <input class="date-picker-overlay" type="date" id="fecha-resultado" autocomplete="off">
@@ -496,18 +498,9 @@ body {
   <div class="amount-row">
     <div class="amount-left">
       <span class="amount-sign neg" id="amount-sign">−</span>
-      <input
-        class="amount-input"
-        id="monto-input"
-        type="text"
-        inputmode="decimal"
-        placeholder="0,00"
-        autocomplete="off"
-        autocorrect="off"
-        autocapitalize="off"
-        spellcheck="false"
-        data-form-type="other"
-      >
+      <input class="amount-input" id="monto-input" type="text" inputmode="decimal"
+        placeholder="0,00" autocomplete="off" autocorrect="off"
+        autocapitalize="off" spellcheck="false" data-form-type="other">
     </div>
     <div class="toggles-col">
       <button class="toggle-btn gasto"   id="btn-tipo">Gasto</button>
@@ -523,17 +516,9 @@ body {
     <circle cx="11" cy="11" r="8"></circle>
     <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
   </svg>
-  <input
-    class="search-input"
-    id="search-input"
-    type="search"
-    placeholder="Buscar categoría..."
-    autocomplete="off"
-    autocorrect="off"
-    autocapitalize="off"
-    spellcheck="false"
-    data-form-type="other"
-  >
+  <input class="search-input" id="search-input" type="search" placeholder="Buscar categoría..."
+    autocomplete="off" autocorrect="off" autocapitalize="off"
+    spellcheck="false" data-form-type="other">
 </div>
 
 <!-- Categorías -->
@@ -549,46 +534,51 @@ body {
 <!-- ── OVERLAY CARGA ── -->
 <div class="overlay" id="ov-loading">
 
-  <div class="echo-dates">
-    <div class="echo-date-block">
-      <span class="echo-label">Caja</span>
-      <span class="echo-date-val" id="echo-caja"></span>
-    </div>
-    <div class="echo-date-block">
-      <span class="echo-label">Resultado</span>
-      <span class="echo-date-val" id="echo-rdo"></span>
-    </div>
-  </div>
+  <!-- Contenido centrado verticalmente -->
+  <div class="echo-content">
 
-  <div class="echo-monto-section">
-    <div class="echo-section-label">Monto</div>
-    <div class="echo-monto-row">
-      <span class="echo-sign neg" id="echo-sign"></span>
-      <span class="echo-num"  id="echo-monto"></span>
-      <span class="echo-curr" id="echo-currency"></span>
-    </div>
-  </div>
-
-  <!-- Por → Categoría, apilados verticalmente -->
-  <div class="echo-detail-section">
-    <div class="echo-block">
-      <span class="echo-block-label">Por</span>
-      <div class="echo-pill">
-        <span class="echo-pill-emoji" id="echo-tarjeta-emoji"></span>
-        <span class="echo-pill-name"  id="echo-tarjeta-name"></span>
+    <div class="echo-dates">
+      <div class="echo-date-block" id="echo-block-caja">
+        <span class="echo-label">Caja</span>
+        <span class="echo-date-val" id="echo-caja"></span>
+      </div>
+      <div class="echo-date-block" id="echo-block-rdo">
+        <span class="echo-label">Resultado</span>
+        <span class="echo-date-val" id="echo-rdo"></span>
       </div>
     </div>
-    <div class="echo-block">
-      <span class="echo-block-label">Categoría</span>
-      <div class="echo-pill">
-        <span class="echo-pill-emoji" id="echo-emoji"></span>
-        <span class="echo-pill-name"  id="echo-cat-name"></span>
+
+    <div class="echo-monto-section">
+      <div class="echo-section-label">Monto</div>
+      <div class="echo-monto-row">
+        <span class="echo-sign neg" id="echo-sign"></span>
+        <span class="echo-num"      id="echo-monto"></span>
+        <span class="echo-curr"     id="echo-currency"></span>
       </div>
     </div>
-  </div>
 
+    <div class="echo-detail-section">
+      <div class="echo-block">
+        <span class="echo-block-label">Por</span>
+        <div class="echo-pill">
+          <span class="echo-pill-emoji" id="echo-tarjeta-emoji"></span>
+          <span class="echo-pill-name"  id="echo-tarjeta-name"></span>
+        </div>
+      </div>
+      <div class="echo-block">
+        <span class="echo-block-label">Categoría</span>
+        <div class="echo-pill">
+          <span class="echo-pill-emoji" id="echo-emoji"></span>
+          <span class="echo-pill-name"  id="echo-cat-name"></span>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /echo-content -->
+
+  <!-- Barra y botón — siempre al fondo -->
   <div class="progress-section">
-    <div class="progress-label">Registrando...</div>
+    <div class="progress-label">Registrando....</div>
     <div class="progress-wrapper">
       <div class="progress-bar" id="progress-bar">
         <div class="progress-stripes"></div>
@@ -654,6 +644,7 @@ function formatDate(d) {
   return `${dd}/${mo}/${y}`;
 }
 
+// ── Estado ──
 let isGasto   = signoParam !== "positivo";
 let isCredito = false;
 let isUSD     = false;
@@ -663,10 +654,13 @@ let selectedEmoji = "";
 const parsed = parsearNotificacion(textoParam);
 if (parsed.currency === "USD") isUSD = true;
 
+// ── Fechas ──
 const inputCaja   = document.getElementById("fecha-caja");
 const inputRdo    = document.getElementById("fecha-resultado");
 const displayCaja = document.getElementById("display-caja");
 const displayRdo  = document.getElementById("display-rdo");
+const fieldCaja   = document.getElementById("field-caja");
+const fieldRdo    = document.getElementById("field-rdo");
 
 function updateDates() {
   displayCaja.textContent = formatDate(inputCaja.value);
@@ -680,6 +674,15 @@ inputCaja.value = todayStr();
 inputRdo.value  = todayStr();
 updateDates();
 
+// ── Atenuado de fechas ──
+// Fecha Caja: atenuada cuando isCredito (no se registra la fecha)
+// Fecha Resultado: atenuada cuando categoría es Inversión/Bienes
+function updateDimming() {
+  fieldCaja.classList.toggle("dimmed", isCredito);
+  fieldRdo.classList.toggle("dimmed",  SOLO_CAJA.includes(selected));
+}
+
+// ── Toggles ──
 const btnTipo    = document.getElementById("btn-tipo");
 const btnTarjeta = document.getElementById("btn-tarjeta");
 const btnMoneda  = document.getElementById("btn-moneda");
@@ -694,6 +697,7 @@ function renderToggles() {
   btnTarjeta.className   = "toggle-btn " + (isCredito ? "credito" : "debito");
   btnMoneda.textContent  = isUSD ? "USD" : "ARS";
   btnMoneda.className    = "toggle-btn " + (isUSD ? "usd" : "ars");
+  updateDimming();
 }
 
 btnTipo.addEventListener("click", () => {
@@ -706,6 +710,7 @@ btnTipo.addEventListener("click", () => {
 btnTarjeta.addEventListener("click", () => { isCredito = !isCredito; renderToggles(); });
 btnMoneda.addEventListener("click",  () => { isUSD = !isUSD; renderToggles(); });
 
+// ── Categorías ──
 function buildCats() {
   const grid = document.getElementById("cat-grid");
   grid.innerHTML = "";
@@ -727,6 +732,7 @@ function buildCats() {
       btn.classList.add("selected");
       selected = name; selectedEmoji = emoji;
       document.getElementById("btn-confirm").disabled = false;
+      updateDimming(); // actualizar atenuado al cambiar categoría
       btn.scrollIntoView({ behavior: "smooth", block: "nearest" });
     });
     grid.appendChild(btn);
@@ -736,6 +742,7 @@ function buildCats() {
 buildCats();
 renderToggles();
 
+// ── Search ──
 document.getElementById("search-input").addEventListener("input", e => {
   const q = e.target.value.toLowerCase().trim();
   document.querySelectorAll(".cat-item").forEach(btn => {
@@ -751,7 +758,8 @@ document.getElementById("search-input").addEventListener("input", e => {
   });
 });
 
-let stepsTimeout, creepInterval, closeTimer;
+// ── Barra de progreso ──
+let stepsTimeout, creepInterval;
 
 function iniciarBarra() {
   const bar = document.getElementById("progress-bar");
@@ -781,9 +789,10 @@ function finalizarBarra() {
   const bar = document.getElementById("progress-bar");
   bar.style.transition = "width 0.2s ease-out";
   bar.style.width = "100%";
-  closeTimer = setTimeout(() => window.close(), 2500);
+  // Sin auto-cierre — el usuario cierra o toca "Registrar Otro"
 }
 
+// ── Confirmar ──
 document.getElementById("btn-confirm").addEventListener("click", async () => {
   if (!selected) return;
   const montoRaw = document.getElementById("monto-input").value.trim();
@@ -792,6 +801,14 @@ document.getElementById("btn-confirm").addEventListener("click", async () => {
   const fechaCajaSheet = formatDate(inputCaja.value);
   const fechaRdoSheet  = formatDate(inputRdo.value);
   const esSoloCaja     = SOLO_CAJA.includes(selected);
+
+  // Echo fechas — ocultar las que no aplican
+  const echoCaja = document.getElementById("echo-block-caja");
+  const echoRdo  = document.getElementById("echo-block-rdo");
+  // Fecha Caja oculta en pantalla de carga si es Crédito
+  echoCaja.classList.toggle("hidden-date", isCredito);
+  // Fecha Resultado oculta en pantalla de carga si es solo-caja
+  echoRdo.classList.toggle("hidden-date", esSoloCaja);
 
   document.getElementById("echo-caja").textContent = fechaCajaSheet;
   document.getElementById("echo-rdo").textContent  = fechaRdoSheet;
@@ -839,8 +856,8 @@ document.getElementById("btn-confirm").addEventListener("click", async () => {
   }
 });
 
+// ── Registrar Otro: abre nueva pestaña ──
 document.getElementById("btn-otro").addEventListener("click", () => {
-  if (closeTimer) clearTimeout(closeTimer);
   window.open(window.location.href.split("?")[0], "_blank");
 });
 
