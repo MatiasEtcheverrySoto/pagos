@@ -647,6 +647,38 @@ function formatDate(d) {
   return `${dd}/${mo}/${y}`;
 }
 
+// Parsea cualquier string numérico a número JS
+// Acepta: "1.234,56" / "1234,56" / "1234.56" / "1234"
+function parsearNumero(str) {
+  const s = String(str).trim().replace(/\s/g, "");
+  if (s.includes(",")) return parseFloat(s.replace(/\./g, "").replace(",", "."));
+  return parseFloat(s);
+}
+
+// Formato display: punto de miles, coma decimal, sin decimales si es entero
+// 1234.5  → "1.234,50"
+// 1234    → "1.234"
+// 100.0   → "100"
+function formatearDisplay(num) {
+  if (isNaN(num) || num < 0) return "";
+  const cents = Math.round(num * 100);
+  const intPart = Math.floor(cents / 100);
+  const decPart = cents % 100;
+  const intStr  = intPart.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+  return decPart === 0 ? intStr : intStr + "," + String(decPart).padStart(2, "0");
+}
+
+// Formato para el sheet: sin punto de miles, coma decimal, sin decimales si es entero
+// 1234.5  → "1234,50"
+// 1234    → "1234"
+function formatearSheet(num) {
+  if (isNaN(num) || num < 0) return "";
+  const cents = Math.round(num * 100);
+  const intPart = Math.floor(cents / 100);
+  const decPart = cents % 100;
+  return decPart === 0 ? String(intPart) : intPart + "," + String(decPart).padStart(2, "0");
+}
+
 // ── Estado ──
 let isGasto   = signoParam !== "positivo";
 let isCredito = false;
@@ -656,6 +688,8 @@ let selectedEmoji = "";
 
 const parsed = parsearNotificacion(textoParam);
 if (parsed.currency === "USD") isUSD = true;
+// Formatear el monto extraído para mostrar en display
+const montoInicial = parsed.amount ? formatearDisplay(parsearNumero(parsed.amount)) : "";
 
 // ── Fechas ──
 const inputCaja   = document.getElementById("fecha-caja");
@@ -672,7 +706,7 @@ function updateDates() {
 inputCaja.addEventListener("change", updateDates);
 inputRdo.addEventListener("change",  updateDates);
 
-document.getElementById("monto-input").value = parsed.amount;
+document.getElementById("monto-input").value = montoInicial;
 inputCaja.value = todayStr();
 inputRdo.value  = todayStr();
 updateDates();
@@ -801,9 +835,13 @@ document.getElementById("btn-confirm").addEventListener("click", async () => {
   if (!selected) return;
   const montoRaw = document.getElementById("monto-input").value.trim();
   if (!montoRaw) return;
-  // Validar que sea un número válido
-  const montoNum = parseFloat(montoRaw.replace(/\./g, "").replace(",", "."));
+  // Parsear y validar
+  const montoNum = parsearNumero(montoRaw);
   if (isNaN(montoNum) || montoNum <= 0) return;
+  // Formato para mostrar en pantalla de carga
+  const montoDisplay = formatearDisplay(montoNum);
+  // Formato para enviar al sheet: sin punto, con coma decimal si aplica
+  const montoSheet = formatearSheet(montoNum);
 
   const fechaCajaSheet = formatDate(inputCaja.value);
   const fechaRdoSheet  = formatDate(inputRdo.value);
@@ -812,9 +850,7 @@ document.getElementById("btn-confirm").addEventListener("click", async () => {
   // Echo fechas — ocultar las que no aplican
   const echoCaja = document.getElementById("echo-block-caja");
   const echoRdo  = document.getElementById("echo-block-rdo");
-  // Fecha Caja oculta en pantalla de carga si es Crédito
   echoCaja.classList.toggle("hidden-date", isCredito);
-  // Fecha Resultado oculta en pantalla de carga si es solo-caja
   echoRdo.classList.toggle("hidden-date", esSoloCaja);
 
   document.getElementById("echo-caja").textContent = fechaCajaSheet;
@@ -823,7 +859,7 @@ document.getElementById("btn-confirm").addEventListener("click", async () => {
   const echoSign = document.getElementById("echo-sign");
   echoSign.textContent = isGasto ? "−" : "+";
   echoSign.className   = "echo-sign " + (isGasto ? "neg" : "pos");
-  document.getElementById("echo-monto").textContent    = montoRaw;
+  document.getElementById("echo-monto").textContent    = montoDisplay;
   document.getElementById("echo-currency").textContent = isUSD ? "USD" : "ARS";
 
   document.getElementById("echo-tarjeta-emoji").textContent = isCredito ? "💳" : "🏦";
@@ -849,7 +885,7 @@ document.getElementById("btn-confirm").addEventListener("click", async () => {
         esGasto:        isGasto,
         esCredito:      isCredito,
         esUSD:          isUSD,
-        montoRaw:       montoRaw,
+        montoRaw:       montoSheet,   // formato sheet: sin punto, coma decimal
         fechaResultado: fechaRdoSheet,
         fechaCaja:      fechaCajaSheet
       })
