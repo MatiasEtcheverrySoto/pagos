@@ -341,7 +341,7 @@ body {
 }
 .echo-sign {
   font-family: 'Geist Mono', monospace;
-  font-size: 44px;
+  font-size: 34px;
   font-weight: 300;
   line-height: 1;
 }
@@ -349,15 +349,15 @@ body {
 .echo-sign.pos { color: var(--green); }
 .echo-num {
   font-family: 'Geist Mono', monospace;
-  font-size: 50px;
+  font-size: 38px;
   font-weight: 300;
-  letter-spacing: -2px;
+  letter-spacing: -1px;
   color: var(--text);
   line-height: 1;
 }
 .echo-curr {
   font-family: 'Geist Mono', monospace;
-  font-size: 50px;
+  font-size: 38px;
   font-weight: 300;
   color: var(--text);
   line-height: 1;
@@ -711,6 +711,30 @@ inputCaja.value = todayStr();
 inputRdo.value  = todayStr();
 updateDates();
 
+// ── Formateo en vivo del monto mientras se escribe ──
+document.getElementById("monto-input").addEventListener("input", function() {
+  const raw    = this.value;
+  const cursor = this.selectionStart;
+  const prevLen = raw.length;
+
+  // Extraer solo dígitos y coma
+  const soloDigitos = raw.replace(/[^0-9,]/g, "");
+  const partes      = soloDigitos.split(",");
+  const intRaw      = partes[0] || "";
+  const decPart     = partes.length > 1 ? "," + partes[1].substring(0, 2) : "";
+
+  // Agregar puntos de miles a la parte entera
+  const intFormateado = intRaw.replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+  const formatted     = intFormateado + decPart;
+
+  if (formatted !== raw) {
+    this.value = formatted;
+    // Ajustar cursor por los puntos agregados/quitados
+    const diff = formatted.length - prevLen;
+    this.setSelectionRange(cursor + diff, cursor + diff);
+  }
+});
+
 // ── Atenuado de fechas ──
 // Fecha Caja: atenuada cuando isCredito (no se registra la fecha)
 // Fecha Resultado: atenuada cuando categoría es Inversión/Bienes
@@ -847,11 +871,18 @@ document.getElementById("btn-confirm").addEventListener("click", async () => {
   const fechaRdoSheet  = formatDate(inputRdo.value);
   const esSoloCaja     = SOLO_CAJA.includes(selected);
 
-  // Echo fechas — ocultar las que no aplican
+  // Echo fechas — ocultar las que no aplican y posicionar la solitaria a la derecha
   const echoCaja = document.getElementById("echo-block-caja");
   const echoRdo  = document.getElementById("echo-block-rdo");
-  echoCaja.classList.toggle("hidden-date", isCredito);
-  echoRdo.classList.toggle("hidden-date", esSoloCaja);
+  const echoBlockCajaOculto = isCredito;
+  const echoBlockRdoOculto  = esSoloCaja;
+  echoCaja.classList.toggle("hidden-date", echoBlockCajaOculto);
+  echoRdo.classList.toggle("hidden-date",  echoBlockRdoOculto);
+  // Si solo Resultado visible → ponerlo a la derecha con un spacer invisible a la izquierda
+  const soloRdo = echoBlockCajaOculto && !echoBlockRdoOculto;
+  echoCaja.style.visibility = soloRdo ? "hidden" : "";
+  echoCaja.style.display    = (!echoBlockCajaOculto || soloRdo) ? "" : "none";
+  echoRdo.style.display     = echoBlockRdoOculto ? "none" : "";
 
   document.getElementById("echo-caja").textContent = fechaCajaSheet;
   document.getElementById("echo-rdo").textContent  = fechaRdoSheet;
