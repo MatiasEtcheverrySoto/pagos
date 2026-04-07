@@ -647,12 +647,13 @@ function formatDate(d) {
   return `${dd}/${mo}/${y}`;
 }
 
-// Parsea cualquier string numérico a número JS
-// Acepta: "1.234,56" / "1234,56" / "1234.56" / "1234"
+// Parsea string numérico en formato argentino a número JS
+// El punto SIEMPRE es separador de miles, la coma es decimal
+// "8.306" → 8306 | "1.234,56" → 1234.56 | "8306" → 8306 | "5,26" → 5.26
 function parsearNumero(str) {
   const s = String(str).trim().replace(/\s/g, "");
-  if (s.includes(",")) return parseFloat(s.replace(/\./g, "").replace(",", "."));
-  return parseFloat(s);
+  // Quitar puntos de miles, reemplazar coma decimal por punto
+  return parseFloat(s.replace(/\./g, "").replace(",", "."));
 }
 
 // Formato display: punto de miles, coma decimal, sin decimales si es entero
@@ -687,7 +688,11 @@ let selected  = null;
 let selectedEmoji = "";
 
 const parsed = parsearNotificacion(textoParam);
+// Auto-detectar moneda
 if (parsed.currency === "USD") isUSD = true;
+// Auto-detectar tarjeta de crédito desde el texto de la notificación
+const textoLower = textoParam.toLowerCase();
+if (textoLower.includes("tarjeta de cr")) isCredito = true;
 // Formatear el monto extraído para mostrar en display
 const montoInicial = parsed.amount ? formatearDisplay(parsearNumero(parsed.amount)) : "";
 
@@ -871,18 +876,35 @@ document.getElementById("btn-confirm").addEventListener("click", async () => {
   const fechaRdoSheet  = formatDate(inputRdo.value);
   const esSoloCaja     = SOLO_CAJA.includes(selected);
 
-  // Echo fechas — ocultar las que no aplican y posicionar la solitaria a la derecha
+  // ── Echo fechas: ocultar las que no aplican ──
   const echoCaja = document.getElementById("echo-block-caja");
   const echoRdo  = document.getElementById("echo-block-rdo");
-  const echoBlockCajaOculto = isCredito;
-  const echoBlockRdoOculto  = esSoloCaja;
-  echoCaja.classList.toggle("hidden-date", echoBlockCajaOculto);
-  echoRdo.classList.toggle("hidden-date",  echoBlockRdoOculto);
-  // Si solo Resultado visible → ponerlo a la derecha con un spacer invisible a la izquierda
-  const soloRdo = echoBlockCajaOculto && !echoBlockRdoOculto;
-  echoCaja.style.visibility = soloRdo ? "hidden" : "";
-  echoCaja.style.display    = (!echoBlockCajaOculto || soloRdo) ? "" : "none";
-  echoRdo.style.display     = echoBlockRdoOculto ? "none" : "";
+  const cajaOculta = isCredito;      // Caja no se muestra cuando es Crédito
+  const rdoOculta  = esSoloCaja;     // Resultado no se muestra para Inversión/Bienes
+
+  if (cajaOculta && !rdoOculta) {
+    // Solo Resultado visible → Caja invisible pero ocupa espacio (Resultado queda a la derecha)
+    echoCaja.style.visibility = "hidden";
+    echoCaja.style.display    = "";
+    echoRdo.style.visibility  = "";
+    echoRdo.style.display     = "";
+  } else if (!cajaOculta && rdoOculta) {
+    // Solo Caja visible → Resultado oculto, Caja a la izquierda
+    echoCaja.style.visibility = "";
+    echoCaja.style.display    = "";
+    echoRdo.style.visibility  = "";
+    echoRdo.style.display     = "none";
+  } else if (cajaOculta && rdoOculta) {
+    // Ninguna visible → ocultar ambas
+    echoCaja.style.display = "none";
+    echoRdo.style.display  = "none";
+  } else {
+    // Ambas visibles → todo normal
+    echoCaja.style.visibility = "";
+    echoCaja.style.display    = "";
+    echoRdo.style.visibility  = "";
+    echoRdo.style.display     = "";
+  }
 
   document.getElementById("echo-caja").textContent = fechaCajaSheet;
   document.getElementById("echo-rdo").textContent  = fechaRdoSheet;
